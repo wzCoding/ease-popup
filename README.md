@@ -1,2 +1,2 @@
-# easy-popup
-an easy and useful javascript plugin for popup
+# ease-popup
+a simple, convenient and useful javascript plugin for popup
