@@ -2,13 +2,13 @@
   "name": "ease-popup",
   "version": "1.0.0",
   "description": "a simple, convenient and useful javascript plugin for popup",
-  "main": "index.js",
   "directories": {
     "doc": "docs",
     "example": "examples"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
