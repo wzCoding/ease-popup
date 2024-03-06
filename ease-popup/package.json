@@ -1,0 +1,34 @@
+{
+  "name": "ease-popup",
+  "version": "1.0.0",
+  "description": "a simple, convenient and useful javascript plugin for popup",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzCoding/ease-popup.git"
+  },
+  "keywords": [
+    "popup",
+    "ease-popup",
+    "popup-plugin",
+    "popup-component",
+    "dialog"
+  ],
+  "author": "wzcoding",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wzCoding/ease-popup/issues"
+  },
+  "homepage": "https://github.com/wzCoding/ease-popup#readme",
+  "devDependencies": {
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  }
+}
