@@ -14,10 +14,6 @@ class Popup {
 
         addStylesheetRules([popupStyle.popup], 'ease-popup')
 
-        if (this.options.needArrow) {
-            addStylesheetRules([popupStyle.arrow], 'ease-popup-arrow')
-        }
-
         if (this.options.useCache) {
             this.state = 0
             this.styles = {}
@@ -64,6 +60,9 @@ class Popup {
         }
 
         if (needArrow) {
+            this.popup.classList.add('arrow-popup')
+            addStylesheetRules([popupStyle.arrow], 'ease-popup-arrow')
+
             styles['--arrow-x'] = `${arrowX}px`
             styles['--arrow-y'] = `${arrowY}px`
             styles['--arrow-size'] = `${arrowSize}px`
@@ -106,6 +105,4 @@ class Popup {
 
 }
 
-export {
-    Popup
-}
+export default Popup

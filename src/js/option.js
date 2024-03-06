@@ -39,7 +39,7 @@ const popupOption = {
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
-    
+
     //popup切换显示与隐藏时是否使用过渡
     transition: {
         enter: 'animate__animated animate__fadeIn',
@@ -61,7 +61,9 @@ const popupStyle = {
         ["background-color", "var(--popup-background)"],
         ["color", "var(--popup-text)"],
         ["max-width", "var(--popup-width)"],
-        ["transform", "translate(var(--popup-x), var(--popup-y))"]
+        ["display", "none"],
+        ["transform", "translate(var(--popup-x), var(--popup-y))"],
+        ["box-sizing","border-box"]
     ],
     arrow: [
         ".popup.arrow-popup::after",
@@ -84,9 +86,9 @@ const popupTheme = {
     'dark': { 'background': '#333333', 'color': '#ffffff' },
 }
 //根元素html宽度
-const rootWidth = document.documentElement.clientWidth
+const rootWidth = window.innerWidth
 //根元素html高度
-const rootHeight = document.documentElement.clientHeight
+const rootHeight = window.innerHeight
 //纵向方向
 const verticals = ['top', 'top-start', 'top-end', 'center', 'bottom', 'bottom-start', 'bottom-end']
 //横向方向

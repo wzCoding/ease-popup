@@ -2,7 +2,7 @@ import { rootWidth, rootHeight, verticals, horizontals, popupOption, popupTheme 
 
 function resolveEl(el) {
     if (typeof el === "string") {
-        return document.getElementById(el) || document.getElementsByClassName(el)[0]
+        return document.getElementById(el) || document.getElementsByClassName(el)[0] || document.querySelector(el)
     }
     return el
 }
