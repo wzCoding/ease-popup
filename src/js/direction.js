@@ -2,7 +2,7 @@ import { rootWidth, rootHeight, verticals, horizontals } from "./option"
 
 function getDirByIndex(direction, index) {
     const result = direction.split('-')[index]
-    return result ? result : ''
+    return result ? (index > 0 ? '-' + result : result) : ''
 }
 
 function getSpace(targetRect, direction, trends) {
@@ -40,11 +40,13 @@ function getxAxis(target, popup, direction, offsetOptions) {
         if (result.popupX < offset[0]) {
             result.popupX = offset[0]
             result.arrowX = target.left - offset[0] + target.width / 2 - arrowSize / 2
+            if (result.arrowX < 0) result.arrowX = 2
         }
 
         if (result.popupX + result.width > rootWidth - offset[0]) {
             result.popupX = rootWidth - result.width - offset[0]
             result.arrowX = target.left - result.popupX + target.width / 2 - arrowSize / 2
+            if (result.arrowX + arrowSize > result.width) result.arrowX = result.width - arrowSize - 2
         }
 
     }
@@ -99,7 +101,7 @@ function getyAxis(target, popup, direction, offsetOptions) {
 
         if (direction.includes('start')) {
             result.popupY = target.top
-            result.arrowY = target.height / 2
+            result.arrowY = target.height / 2 - arrowSize / 2
         }
         else if (direction.includes('end')) {
             result.popupY = target.top + target.height - result.height
@@ -108,12 +110,13 @@ function getyAxis(target, popup, direction, offsetOptions) {
 
         if (result.popupY < offset[1]) {
             result.popupY = offset[1]
-            result.arrowY = target.top - offset[1] + arrowSize
+            result.arrowY = target.top - result.popupY + target.height / 2 - arrowSize / 2
         }
 
         if (result.popupY + result.height > rootHeight - offset[1]) {
             result.popupY = rootHeight - offset[1] - result.height
-            result.arrowY = target.top - result.popupY + arrowSize
+            result.arrowY = target.top - result.popupY + target.height / 2 - arrowSize / 2
+            if (result.arrowY + arrowSize > result.height) result.arrowY = result.height - arrowSize - 2
         }
     }
 
@@ -132,7 +135,7 @@ function getDirection(target, popup, direction, offsetOptions, state = 0) {
 
     const { gap, arrowSize, offset } = offsetOptions
     const dir = verticals.includes(direction) ? 'vertical' : 'horizontal'
-    const subDir = getDirByIndex(direction,1)
+    const subDir = getDirByIndex(direction, 1)
     const dirOptions = {
         vertical: {
             trends: ['top', 'bottom'],
@@ -145,14 +148,14 @@ function getDirection(target, popup, direction, offsetOptions, state = 0) {
             popupSpace: popup.width + gap + arrowSize + offset[0]
         }
     }
-    
+
     state++  //增加一次计数
 
     let result = direction
 
     const { trends, backup, popupSpace } = dirOptions[dir]
     const { sameDir, reserveDir, sameSpace, reserveSpace } = getSpace(target, direction, trends)
-   
+
     if (sameSpace < popupSpace) { //如果同向空间不足，则改变方向
         state++  //增加一次计数
 
@@ -169,10 +172,6 @@ function getDirection(target, popup, direction, offsetOptions, state = 0) {
 
 
 export {
-    rootWidth,
-    rootHeight,
-    verticals,
-    horizontals,
     getxAxis,
     getyAxis,
     getDirection,

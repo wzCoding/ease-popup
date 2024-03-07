@@ -37,24 +37,24 @@ class Popup {
 
         }
 
-        const { direction, maxWidth, needArrow, offset, gap, arrowSize, background, color } = resolveOption(this.options)
+        const { direction, width, needArrow, offset, gap, arrowSize, background, color } = resolveOption(this.options)
 
         const targetRect = resolveRect(this.target)
 
-        const popupRect = resolveRect(this.popup, maxWidth, offset.offsetX)
+        const popupRect = resolveRect(this.popup, width, offset.offsetX)
 
         const offsetOptions = { offset, gap, arrowSize }
 
         const resolvedDir = getDirection(targetRect, popupRect, direction, offsetOptions)
 
-        const { popupX, width, arrowX } = getxAxis(targetRect, popupRect, resolvedDir, offsetOptions)
+        const { popupX, width: popupWidth, arrowX } = getxAxis(targetRect, popupRect, resolvedDir, offsetOptions)
 
         const { popupY, arrowY } = getyAxis(targetRect, popupRect, resolvedDir, offsetOptions)
 
         const styles = {
             '--popup-x': `${popupX}px`,
             '--popup-y': `${popupY}px`,
-            '--popup-width': `${width}px`,
+            '--popup-width': `${popupWidth}px`,
             '--popup-background': `${background}`,
             '--popup-color': `${color}`
         }
@@ -95,7 +95,7 @@ class Popup {
     show() {
         this.update()
         this.popup.style.display = 'block'
-        
+
     }
 
     hide() {

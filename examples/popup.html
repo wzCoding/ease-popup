@@ -11,6 +11,13 @@
         margin:0;
         padding: 0;
     }
+    .popup-btn{
+        position: absolute;
+        bottom: 0px;
+        right: 0;
+        width: 80px;
+        height: 30px;
+    }
 </style>
 <body>
     <button class="popup-btn">click</button>
@@ -30,8 +37,8 @@
         ".popup-btn",
         ".popup",
         {
-            direction: "bottom",
-            maxWidth: "400",
+            direction: "right-start",
+            //width: "200",
             needArrow: true,
         }
     )

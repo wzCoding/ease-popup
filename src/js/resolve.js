@@ -36,14 +36,9 @@ function resolveElSize(el) {
     }
 }
 
-function resolveRect(el, maxWidth, offsetX) {
+function resolveRect(el) {
     el = resolveEl(el)
     let { left, top, right, bottom, width, height } = resolveElSize(el)
-
-    if (maxWidth) {
-        const autoWidth = rootWidth - width >= offsetX * 2 ? width : rootWidth - offsetX * 2
-        width = maxWidth == 'auto' ? autoWidth : Number(maxWidth)
-    }
 
     return {
         left,
@@ -70,11 +65,10 @@ function resolveArrow(direction) {
 
 function resolveOption(options) {
     const resolved = Object.assign({}, popupOption, options)
-    console.log(resolved)
     if (!resolved.needArrow) {
         resolved.arrowSize = 0
     }
-
+   
     if (resolved.theme) {
 
         if (popupTheme[resolved.theme]) {
