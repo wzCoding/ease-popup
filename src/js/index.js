@@ -39,20 +39,20 @@ class Popup {
 
         const resolved = resolveOption(this.options)
 
-        const targetRect = resolveRect(this.target)
+        const target = resolveRect(this.target)
 
-        const popupRect = resolveRect(this.popup)
+        const popup = resolveRect(this.popup, { ...resolved, target })
 
-        const { safeDirection, safeWidth } = getDirection(targetRect, popupRect, resolved)
+        const  safeDirection = getDirection(target, popup, resolved)
 
-        const { popupX, arrowX } = getxAxis(targetRect, safeWidth, resolved)
+        const { popupX, arrowX } = getxAxis(target, popup.width, resolved)
 
-        const { popupY, arrowY } = getyAxis(targetRect, popupRect.height, resolved)
+        const { popupY, arrowY } = getyAxis(target, popup.height, resolved)
 
         const styles = {
             '--popup-x': `${popupX}px`,
             '--popup-y': `${popupY}px`,
-            '--popup-width': `${safeWidth}px`,
+            '--popup-width': `${popup.width}px`,
             '--popup-background': `${resolved.background}`,
             '--popup-color': `${resolved.color}`
         }

@@ -56,12 +56,6 @@ function getyAxis(targetRect, popupHeight, options) {
     const result = { popupY: 0, arrowY: 0 }
     let top = targetRect.top
     let targetHeight = targetRect.height
-    if (targetRect.top < offset[1]) {
-        top = offset[1]
-    }
-    if (targetRect.bottom < offset[1]) {
-        top = rootHeight - targetHeight - offset[1]
-    }
 
     if (verticals.includes(direction)) {  //计算垂直方向（上下）的y坐标
 
@@ -76,6 +70,13 @@ function getyAxis(targetRect, popupHeight, options) {
     }
 
     if (horizontals.includes(direction)) { //计算水平方向（左右）的y坐标
+
+        if (targetRect.top < offset[1]) {
+            top = offset[1]
+        }
+        if (targetRect.bottom < offset[1]) {
+            top = top - offset[1]
+        }
 
         result.popupY = top + targetHeight / 2 - popupHeight / 2
         result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
@@ -102,28 +103,7 @@ function getyAxis(targetRect, popupHeight, options) {
 
     return result
 }
-function getSafeWidth(options) {
-    const { target, popup, maxWidth, direction, arrowSize, gap, offset } = options
-    let safeWidth = popup.width
-    if (maxWidth === 'auto') {
-        if (verticals.includes(direction)) {
-            safeWidth = rootWidth - safeWidth >= offset[0] * 2 ? safeWidth : rootWidth - offset[0] * 2
-        } else if (horizontals.includes(direction)) {
-            const { left, right } = target
-            const space = left > right ? left : right
-            const blank = offset[0] + gap + arrowSize / 2
-            safeWidth = space - safeWidth >= blank ? safeWidth : space - blank
-            console.log(safeWidth)
-        }
-    } else {
-        if (maxWidth && !isNaN(maxWidth)) {
-            safeWidth = Number(maxWidth)
-        } else {
-            throw new Error('maxWidth is invalid!')
-        }
-    }
-    return safeWidth
-}
+
 function getDirection(target, popup, options, state = 0) {
 
     const { direction, arrowSize, gap, offset } = options
@@ -136,7 +116,8 @@ function getDirection(target, popup, options, state = 0) {
         throw new Error('not enough space!')
     }
 
-    let result = { safeDirection: direction, safeWidth: getSafeWidth({ ...options, target, popup }) }
+    let result = direction
+
     const isVertical = verticals.includes(direction)
     const mainDir = getDirByIndex(direction, 0)
     const subDir = getDirByIndex(direction, 1)
@@ -152,7 +133,7 @@ function getDirection(target, popup, options, state = 0) {
             popupSpace: popup.height + gap + arrowSize / 2 + offset[1]
         }
     ]
-
+console.log(popup)
     state++  //增加一次计数
     console.log(mainDir)
     console.log(isVertical)
@@ -171,7 +152,7 @@ function getDirection(target, popup, options, state = 0) {
         state++  //增加一次计数
 
         if (target[reserveDir] >= popupSpace) {
-            result.safeDirection = direction.replace(sameDir, reserveDir) // 如果反向空间满足，方向替换为反向
+            result = direction.replace(sameDir, reserveDir) // 如果反向空间满足，方向替换为反向
         } else {
             state++  //增加一次计数
             options.direction = reset // 如果反向空间不满足，则进行横纵方位替换

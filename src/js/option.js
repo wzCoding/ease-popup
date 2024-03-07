@@ -17,7 +17,7 @@ const popupOption = {
     direction: 'top',
 
     //popup宽度设置
-    maxWidth: 'auto',
+    width: 'auto',
 
     //popup的放置部位（位于目标元素的外部或者内部）
     placement: 'outside',
@@ -53,13 +53,12 @@ const popupStyle = {
         ".popup",
         ["position", "absolute"],
         ["z-index", "2"],
-        ["inset", "0 0 auto"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
         ["padding", "8px"],
         ["background-color", "var(--popup-background)"],
-        ["color", "var(--popup-text)"],
-        ["max-width", "var(--popup-width)"],
+        ["color", "var(--popup-color)"],
+        ["width", "var(--popup-width)"],
         ["display", "none"],
         ["transform", "translate(var(--popup-x), var(--popup-y))"],
         ["box-sizing", "border-box"]

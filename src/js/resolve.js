@@ -36,16 +36,39 @@ function resolveElSize(el) {
     }
 }
 
-function resolveRect(el) {
+function resolveRect(el, options) {
     el = resolveEl(el)
-    const { left, top, right, bottom, width, height } = resolveElSize(el)
+    let size = resolveElSize(el)
+    console.log(size)
+    if (options) {
+        const { target, width, direction, arrowSize, gap, offset } = options
+        let safeWidth = width
+        if (width === 'auto') {
+            if (verticals.includes(direction)) {
+                safeWidth = rootWidth - size.width >= offset[0] * 2 ? safeWidth : rootWidth - offset[0] * 2
+            } else if (horizontals.includes(direction)) {
+                const blank = offset[0] + gap + arrowSize
+                const space = target.left > target.right ? target.left : target.right
+                safeWidth = space - size.width >= blank ? safeWidth : space - blank
+            }
+        } else {
+            if (width && !isNaN(width)) {
+                safeWidth = Number(width)
+            } else {
+                throw new Error('width is invalid!')
+            }
+        }
+        el.style.setProperty('--popup-width', safeWidth == 'auto' ? safeWidth : safeWidth + 'px')
+        size = resolveElSize(el)
+    }
+
     return {
-        left,
-        right: rootWidth - right,
-        top,
-        bottom: rootHeight - bottom,
-        width,
-        height
+        left: size.left,
+        right: rootWidth - size.right,
+        top: size.top,
+        bottom: rootHeight - size.bottom,
+        width: size.width,
+        height: size.height
     }
 }
 
@@ -67,7 +90,7 @@ function resolveOption(options) {
     if (!resolved.needArrow) {
         resolved.arrowSize = 0
     }
-   
+
     if (resolved.theme) {
 
         if (popupTheme[resolved.theme]) {
