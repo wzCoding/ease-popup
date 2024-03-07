@@ -37,39 +37,37 @@ class Popup {
 
         }
 
-        const { direction, width, needArrow, offset, gap, arrowSize, background, color } = resolveOption(this.options)
+        const resolved = resolveOption(this.options)
 
         const targetRect = resolveRect(this.target)
 
-        const popupRect = resolveRect(this.popup, width, offset.offsetX)
+        const popupRect = resolveRect(this.popup)
 
-        const offsetOptions = { offset, gap, arrowSize }
+        const { safeDirection, safeWidth } = getDirection(targetRect, popupRect, resolved)
 
-        const resolvedDir = getDirection(targetRect, popupRect, direction, offsetOptions)
+        const { popupX, arrowX } = getxAxis(targetRect, safeWidth, resolved)
 
-        const { popupX, width: popupWidth, arrowX } = getxAxis(targetRect, popupRect, resolvedDir, offsetOptions)
-
-        const { popupY, arrowY } = getyAxis(targetRect, popupRect, resolvedDir, offsetOptions)
+        const { popupY, arrowY } = getyAxis(targetRect, popupRect.height, resolved)
 
         const styles = {
             '--popup-x': `${popupX}px`,
             '--popup-y': `${popupY}px`,
-            '--popup-width': `${popupWidth}px`,
-            '--popup-background': `${background}`,
-            '--popup-color': `${color}`
+            '--popup-width': `${safeWidth}px`,
+            '--popup-background': `${resolved.background}`,
+            '--popup-color': `${resolved.color}`
         }
 
-        if (needArrow) {
+        if (resolved.needArrow) {
             this.popup.classList.add('arrow-popup')
             addStylesheetRules([popupStyle.arrow], 'ease-popup-arrow')
 
             styles['--arrow-x'] = `${arrowX}px`
             styles['--arrow-y'] = `${arrowY}px`
-            styles['--arrow-size'] = `${arrowSize}px`
-            styles['--arrow-rotate'] = `${resolveArrow(resolvedDir)}deg`
+            styles['--arrow-size'] = `${resolved.arrowSize}px`
+            styles['--arrow-rotate'] = `${resolveArrow(safeDirection)}deg`
         }
 
-        this.options.direction = resolvedDir
+        this.options.direction = safeDirection
 
         return styles
     }

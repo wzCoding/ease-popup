@@ -17,7 +17,7 @@ const popupOption = {
     direction: 'top',
 
     //popup宽度设置
-    width: 'auto',
+    maxWidth: 'auto',
 
     //popup的放置部位（位于目标元素的外部或者内部）
     placement: 'outside',
@@ -47,7 +47,6 @@ const popupOption = {
     },
 
 }
-
 //popup的默认样式
 const popupStyle = {
     popup: [

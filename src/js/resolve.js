@@ -38,8 +38,7 @@ function resolveElSize(el) {
 
 function resolveRect(el) {
     el = resolveEl(el)
-    let { left, top, right, bottom, width, height } = resolveElSize(el)
-
+    const { left, top, right, bottom, width, height } = resolveElSize(el)
     return {
         left,
         right: rootWidth - right,

@@ -5,64 +5,45 @@ function getDirByIndex(direction, index) {
     return result ? (index > 0 ? '-' + result : result) : ''
 }
 
-function getSpace(targetRect, direction, trends) {
+function getxAxis(targeRect, popupWidth, options) {
 
-    const mainDir = getDirByIndex(direction, 0)
-    const sameDir = trends.filter(item => mainDir === item)[0]  //计算当前方向
-    const reserveDir = trends.filter(item => mainDir !== item)[0]  //计算当前方向反向
-    const sameSpace = targetRect[sameDir]  //计算target所在位置的空间
-    const reserveSpace = targetRect[reserveDir]  //计算target所在位置的反向空间
-
-    return { sameDir, reserveDir, sameSpace, reserveSpace }
-}
-
-function getxAxis(target, popup, direction, offsetOptions) {
-
-    const { gap, arrowSize, offset } = offsetOptions
-    const result = { popupX: 0, width: popup.width, arrowX: 0 }
+    const { direction, gap, arrowSize, offset } = options
+    const { left: targetLeft, width: targetWidth } = targeRect
+    const result = { popupX: 0, arrowX: 0 }
 
     if (verticals.includes(direction)) {  //计算垂直方向（上下）的x坐标
-        const blankSpace = offset[0] * 2 //计算空白
-        result.width = rootWidth - popup.width >= blankSpace ? popup.width : rootWidth - blankSpace //计算popup宽度
 
-        result.popupX = target.left + target.width / 2 - result.width / 2
-        result.arrowX = result.width / 2 - arrowSize / 2
+        result.popupX = targetLeft + targetWidth / 2 - popupWidth / 2
+        result.arrowX = popupWidth / 2 - arrowSize / 2
 
         if (direction.includes('start')) {
-            result.popupX = target.left
-            result.arrowX = target.width / 2 - arrowSize / 2
+            result.popupX = targetLeft
+            result.arrowX = targetWidth / 2 - arrowSize / 2
         }
         else if (direction.includes('end')) {
-            result.popupX = target.left + target.width - result.width
-            result.arrowX = result.width - target.width / 2 - arrowSize / 2
+            result.popupX = targetLeft + targetWidth - popupWidth
+            result.arrowX = popupWidth - targetWidth / 2 - arrowSize / 2
         }
 
         if (result.popupX < offset[0]) {
             result.popupX = offset[0]
-            result.arrowX = target.left - offset[0] + target.width / 2 - arrowSize / 2
-            if (result.arrowX < 0) result.arrowX = 2
+            result.arrowX = targetLeft - offset[0] + targetWidth / 2 - arrowSize / 2
         }
 
-        if (result.popupX + result.width > rootWidth - offset[0]) {
-            result.popupX = rootWidth - result.width - offset[0]
-            result.arrowX = target.left - result.popupX + target.width / 2 - arrowSize / 2
-            if (result.arrowX + arrowSize > result.width) result.arrowX = result.width - arrowSize - 2
+        if (result.popupX + popupWidth > rootWidth - offset[0]) {
+            result.popupX = rootWidth - popupWidth - offset[0]
+            result.arrowX = targetLeft - result.popupX + targetWidth / 2 - arrowSize / 2
         }
-
     }
 
     if (horizontals.includes(direction)) { //计算水平方向（左右）的x坐标
-        const trend = getDirByIndex(direction, 0)
-        const blankSpace = gap + offset[0]  //计算间隔
-        const arrowSpace = gap + arrowSize
-        result.width = target[trend] - blankSpace >= popup.width ? popup.width : target[trend] - blankSpace //计算popup宽度
 
         if (direction.includes('left')) {
-            result.popupX = target.left - result.width - arrowSpace
-            result.arrowX = result.width - arrowSize / 2
+            result.popupX = targetLeft - popupWidth - gap - arrowSize
+            result.arrowX = popupWidth - arrowSize / 2
         }
         else if (direction.includes('right')) {
-            result.popupX = target.left + target.width + arrowSpace
+            result.popupX = targetLeft + targetWidth + gap + arrowSize
             result.arrowX = - arrowSize / 2
         }
     }
@@ -70,60 +51,82 @@ function getxAxis(target, popup, direction, offsetOptions) {
     return result
 }
 
-function getyAxis(target, popup, direction, offsetOptions) {
-    const { gap, arrowSize, offset } = offsetOptions
-    const result = { popupY: 0, height: popup.height, arrowY: 0 }
-    let top = target.top
-
-    if (target.top < offset[1]) {
+function getyAxis(targetRect, popupHeight, options) {
+    const { direction, gap, arrowSize, offset } = options
+    const result = { popupY: 0, arrowY: 0 }
+    let top = targetRect.top
+    let targetHeight = targetRect.height
+    if (targetRect.top < offset[1]) {
         top = offset[1]
     }
-    if (target.bottom < offset[1]) {
-        top = rootHeight - offset[1] - popup.height
+    if (targetRect.bottom < offset[1]) {
+        top = rootHeight - targetHeight - offset[1]
     }
 
     if (verticals.includes(direction)) {  //计算垂直方向（上下）的y坐标
 
         if (direction.includes('top')) {
-            result.popupY = top - result.height - gap - arrowSize
-            result.arrowY = result.height - arrowSize / 2
+            result.popupY = top - popupHeight - gap - arrowSize
+            result.arrowY = popupHeight - arrowSize / 2
         }
         else if (direction.includes('bottom')) {
-            result.popupY = top + target.height + gap + arrowSize
+            result.popupY = top + targetHeight + gap + arrowSize
             result.arrowY = - arrowSize / 2
         }
     }
 
     if (horizontals.includes(direction)) { //计算水平方向（左右）的y坐标
 
-        result.popupY = target.top + target.height / 2 - result.height / 2
-        result.arrowY = target.top - result.popupY + target.height / 2 - arrowSize / 2
+        result.popupY = top + targetHeight / 2 - popupHeight / 2
+        result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
 
         if (direction.includes('start')) {
-            result.popupY = target.top
-            result.arrowY = target.height / 2 - arrowSize / 2
+            result.popupY = top
+            result.arrowY = targetHeight / 2 - arrowSize / 2
         }
         else if (direction.includes('end')) {
-            result.popupY = target.top + target.height - result.height
-            result.arrowY = result.height - target.height / 2 - arrowSize / 2
+            result.popupY = top + targetHeight - popupHeight
+            result.arrowY = popupHeight - targetHeight / 2 - arrowSize / 2
         }
 
         if (result.popupY < offset[1]) {
             result.popupY = offset[1]
-            result.arrowY = target.top - result.popupY + target.height / 2 - arrowSize / 2
+            result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
         }
 
-        if (result.popupY + result.height > rootHeight - offset[1]) {
-            result.popupY = rootHeight - offset[1] - result.height
-            result.arrowY = target.top - result.popupY + target.height / 2 - arrowSize / 2
-            if (result.arrowY + arrowSize > result.height) result.arrowY = result.height - arrowSize - 2
+        if (result.popupY + popupHeight > rootHeight - offset[1]) {
+            result.popupY = rootHeight - offset[1] - popupHeight
+            result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
         }
     }
 
     return result
 }
+function getSafeWidth(options) {
+    const { target, popup, maxWidth, direction, arrowSize, gap, offset } = options
+    let safeWidth = popup.width
+    if (maxWidth === 'auto') {
+        if (verticals.includes(direction)) {
+            safeWidth = rootWidth - safeWidth >= offset[0] * 2 ? safeWidth : rootWidth - offset[0] * 2
+        } else if (horizontals.includes(direction)) {
+            const { left, right } = target
+            const space = left > right ? left : right
+            const blank = offset[0] + gap + arrowSize / 2
+            safeWidth = space - safeWidth >= blank ? safeWidth : space - blank
+            console.log(safeWidth)
+        }
+    } else {
+        if (maxWidth && !isNaN(maxWidth)) {
+            safeWidth = Number(maxWidth)
+        } else {
+            throw new Error('maxWidth is invalid!')
+        }
+    }
+    return safeWidth
+}
+function getDirection(target, popup, options, state = 0) {
 
-function getDirection(target, popup, direction, offsetOptions, state = 0) {
+    const { direction, arrowSize, gap, offset } = options
 
     if (!verticals.concat(horizontals).includes(direction)) {
         throw new Error('direction is invalid!')
@@ -133,40 +136,49 @@ function getDirection(target, popup, direction, offsetOptions, state = 0) {
         throw new Error('not enough space!')
     }
 
-    const { gap, arrowSize, offset } = offsetOptions
-    const dir = verticals.includes(direction) ? 'vertical' : 'horizontal'
+    let result = { safeDirection: direction, safeWidth: getSafeWidth({ ...options, target, popup }) }
+    const isVertical = verticals.includes(direction)
+    const mainDir = getDirByIndex(direction, 0)
     const subDir = getDirByIndex(direction, 1)
-    const dirOptions = {
-        vertical: {
-            trends: ['top', 'bottom'],
-            backup: 'left' + subDir,
-            popupSpace: popup.height + gap + arrowSize + offset[1]
+    const configs = [
+        {
+            dirs: ['left', 'right'],
+            reset: 'top' + subDir,
+            popupSpace: result.safeWidth + gap + arrowSize / 2 + offset[0]
         },
-        horizontal: {
-            trends: ['left', 'right'],
-            backup: 'top' + subDir,
-            popupSpace: popup.width + gap + arrowSize + offset[0]
+        {
+            dirs: ['top', 'bottom'],
+            reset: 'left' + subDir,
+            popupSpace: popup.height + gap + arrowSize / 2 + offset[1]
         }
-    }
+    ]
 
     state++  //增加一次计数
+    console.log(mainDir)
+    console.log(isVertical)
+    console.log(configs[Number(isVertical)])
+    const { dirs, reset, popupSpace } = configs[Number(isVertical)]
+    const sameDir = dirs.filter(item => mainDir === item)[0]  //计算当前方向
+    const reserveDir = dirs.filter(item => mainDir !== item)[0]  //计算当前方向反向
 
-    let result = direction
+    console.log('sameDir', sameDir)
+    console.log('reserveDir', reserveDir)
+    console.log('popupSpace', popupSpace)
+    console.log('target[sameDir]', target[sameDir])
+    console.log('target[reserveDir]', target[reserveDir])
 
-    const { trends, backup, popupSpace } = dirOptions[dir]
-    const { sameDir, reserveDir, sameSpace, reserveSpace } = getSpace(target, direction, trends)
-
-    if (sameSpace < popupSpace) { //如果同向空间不足，则改变方向
+    if (target[sameDir] < popupSpace) { //如果同向空间不足，则改变方向
         state++  //增加一次计数
 
-        if (reserveSpace > popupSpace) {
-            result = direction.replace(sameDir, reserveDir) // 如果反向空间满足，方向替换为反向
+        if (target[reserveDir] >= popupSpace) {
+            result.safeDirection = direction.replace(sameDir, reserveDir) // 如果反向空间满足，方向替换为反向
         } else {
             state++  //增加一次计数
-            result = getDirection(target, popup, backup, offsetOptions, state)  // 如果反向空间不满足，则进行横纵方位替换
+            options.direction = reset // 如果反向空间不满足，则进行横纵方位替换
+            result = getDirection(target, popup, options, state = 0)  // 如果反向空间不满足，则进行横纵方位替换
         }
     }
-
+    console.log(result)
     return result
 }
 
