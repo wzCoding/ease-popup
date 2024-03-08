@@ -52,6 +52,8 @@ const popupStyle = {
     popup: [
         ".popup",
         ["position", "absolute"],
+        ["left","var(--popup-x)"],
+        ["top","var(--popup-y)"],
         ["z-index", "2"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
@@ -60,7 +62,7 @@ const popupStyle = {
         ["color", "var(--popup-color)"],
         ["width", "var(--popup-width)"],
         ["display", "none"],
-        ["transform", "translate(var(--popup-x), var(--popup-y))"],
+        //["transform", "translate(var(--popup-x), var(--popup-y))"],
         ["box-sizing", "border-box"]
     ],
     arrow: [
@@ -83,18 +85,12 @@ const popupTheme = {
     'light': { 'background': '#ffffff', 'color': '#333333' },
     'dark': { 'background': '#333333', 'color': '#ffffff' },
 }
-//根元素html宽度
-const rootWidth = window.innerWidth
-//根元素html高度
-const rootHeight = window.innerHeight
 //纵向方向
 const verticals = ['top', 'top-start', 'top-end', 'center', 'bottom', 'bottom-start', 'bottom-end']
 //横向方向
 const horizontals = ['left', 'left-start', 'left-end', 'center', 'right', 'right-start', 'right-end']
 
 export {
-    rootWidth,
-    rootHeight,
     verticals,
     horizontals,
     popupStyle,

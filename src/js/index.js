@@ -1,10 +1,9 @@
-import { getxAxis, getyAxis, getDirection } from "./direction"
-import { resolveEl, resolveRect, resolveArrow, resolveOption, addStylesheetRules } from "./resolve"
+import { resolveEl, resolveRect, resolveArrow, resolveOption, addStylesheetRules ,getxCoord, getyCoord, getDirection} from "./resolve"
 import { popupStyle } from "./option"
 
 class Popup {
     constructor(target, popup, options = {}) {
-        if (!target || !popup) {
+        if (!target) {
             return
         }
 
@@ -45,9 +44,9 @@ class Popup {
 
         const  safeDirection = getDirection(target, popup, resolved)
 
-        const { popupX, arrowX } = getxAxis(target, popup.width, resolved)
+        const { popupX, arrowX } = getxCoord(target, popup.width, resolved)
 
-        const { popupY, arrowY } = getyAxis(target, popup.height, resolved)
+        const { popupY, arrowY } = getyCoord(target, popup.height, resolved)
 
         const styles = {
             '--popup-x': `${popupX}px`,
