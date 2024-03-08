@@ -7,16 +7,16 @@
  * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能）。
  * @property {boolean} needArrow - 是否需要箭头。
  * @property {number} arrowSize - 箭头尺寸。
- * @property {number} gap - popup与目标元素（触发元素）的间距。
- * @property {number[]} offset - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
- * @property {(Object|string)} theme - popup的主题，默认值为'light'，可取值为'light'，'dark'，自定义的theme对象{background:'',color:''}。
+ * @property {number} targetGap - popup与目标元素（触发元素）的间距。
+ * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
+ * @property {(object|string)} theme - popup的主题，默认值为'light'，可取值为'light'，'dark'，自定义的theme对象{background:'',color:''}。
  * @property {boolean} transition - popup的切换显隐时是否过渡，默认值为true。
  */
 
 const popupOption = {
     //方向
     direction: 'top',
-    
+
     //popup的打开方式
     trigger: 'click',
 
@@ -43,36 +43,36 @@ const popupOption = {
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
-
+    
     //popup切换显示与隐藏时是否使用过渡
     transition: {
-        enter: 'animate__animated animate__fadeIn',
-        leave: 'animate__animated animate__fadeOut'
+        enter: "fade-in",
+        leave: "fade-out"
     },
 
 }
 //popup的默认样式
 const popupStyle = {
     popup: [
-        ".popup",
+        ".ease-popup",
         ["display", "none"],
         ["position", "absolute"],
         ["box-sizing", "border-box"],
-        ["left","var(--popup-x)"],
-        ["top","var(--popup-y)"],
+        ["left", "var(--popup-x)"],
+        ["top", "var(--popup-y)"],
         ["width", "var(--popup-width)"],
         ["padding", "8px"],
         ["color", "var(--popup-color)"],
         ["background-color", "var(--popup-background)"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
-        ["z-index", "2"],  
+        ["z-index", "var(--popup-zIndex)"],
     ],
     arrow: [
-        ".popup.arrow::after",
+        ".ease-popup.arrow::after",
         ["content", "''"],
         ["display", "block"],
-        ["z-index", "-1"],
+        ["z-index", "var(--arrow-zIndex)"],
         ["position", "absolute"],
         ["left", "var(--arrow-x)"],
         ["top", "var(--arrow-y)"],
@@ -81,7 +81,15 @@ const popupStyle = {
         ["height", "var(--arrow-size)"],
         ["transform", " rotate(var(--arrow-rotate))"],
         ["box-shadow", "-1px 1px 1px rgba(0, 0, 0, 0.1)"]
-    ]
+    ],
+    enter: [
+        ".ease-popup.fade-in",
+        ["opacity", "1"],
+    ],
+    leave: [
+        ".ease-popup.fade-out",
+        ["opacity", "0"],
+    ],
 }
 //popup的主题样式
 const popupTheme = {

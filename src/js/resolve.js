@@ -183,7 +183,7 @@ function getDirection(target, popup, options, state = 0) {
             result = getDirection(target, popup, options, state = 0)  // 如果反向空间不满足，则进行横纵方位替换
         }
     }
-    console.log(result)
+
     return result
 }
 
@@ -295,44 +295,89 @@ function resolveOption(options) {
     return resolved
 }
 
- //this function is from MDN
-function addStylesheetRules(rules, id) {
-   
-    if (document.getElementById(id)) return
-    const style = document.createElement("style")
-    style.id = id
-    style.type = "text/css"
-    document.getElementsByTagName("head")[0].appendChild(style)
+function resolveTransition(el, transitions, start = true) {
 
-    if (!window.createPopup) {
-        style.appendChild(document.createTextNode(""))
+    const getClass = (name) => {
+        let className
+        if (typeof transitions[name] === 'string') {
+            className = transitions[name]
+        } else {
+            className = `ease-popup-${name}`
+            addStylesheetRules([[`.${className}`, transitions[name]]], 'ease-popup')
+        }
+        return className
+    }
+    const enterClass = getClass('enter')
+    const leaveClass = getClass('leave')
+    if (start) {
+        new Promise((resolve) => {
+            el.classList.add(leaveClass)
+            el.style.display = 'block'
+            setTimeout(resolve, 0)
+        }).then(() => {
+            el.classList.remove(leaveClass)
+            el.classList.add(enterClass)
+        })
+    } else {
+        el.classList.add(leaveClass)
     }
 
-    const sheet = document.styleSheets[document.styleSheets.length - 1]
+    el.addEventListener('transitionend', function () {
+        if (!start) {
+            el.style.display = 'none'
+            el.classList.remove(leaveClass)
+        } else {
+            el.classList.remove(enterClass)
+        }
+    }, { once: true })
+}
 
+//this function is from MDN,and I just made some changes to
+//support use one <style> tag to add styleRules 
+function addStylesheetRules(rules, id) {
+    let sheet
+    if (document.getElementById(id)) {
+        sheet = document.getElementById(id).sheet
+    } else {
+        const style = document.createElement("style")
+        style.id = id
+        style.type = "text/css"
+        document.getElementsByTagName("head")[0].appendChild(style)
+
+        if (!window.createPopup) {
+            style.appendChild(document.createTextNode(""))
+        }
+        sheet = document.styleSheets[document.styleSheets.length - 1]
+    }
+    console.log(sheet)
     for (let index = 0; index < rules.length; index++) {
-
         let rule = rules[index]
         let selector = rule[0]
-        let rulesText = ""
-
-        let childIndex = 1
-        if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
-            rule = rule[1]
-            childIndex = 0
+        let existRule = [...sheet.rules].filter(item => item.selectorText === selector)
+        if (existRule.length) {
+            break;
         }
 
-        for (; childIndex < rule.length; childIndex++) {
-            let childRule = rule[childIndex]
-            rulesText += `${childRule[0]}:${childRule[1]}${childRule[2] ? " !important" : ""};\n`
+        let subIndex = 1
+        let ruleText = ""
+
+        if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
+            rule = rule[1]
+            subIndex = 0
+        }
+
+        for (; subIndex < rule.length; subIndex++) {
+            let subRule = rule[subIndex]
+            ruleText += `${subRule[0]}:${subRule[1]}${subRule[2] ? " !important" : ""};\n`
         }
 
         if (sheet.insertRule) {
-            sheet.insertRule(selector + "{" + rulesText + "}", sheet.cssRules.length);
+            sheet.insertRule(selector + "{" + ruleText + "}", sheet.cssRules.length);
         } else {
-            sheet.addRule(selector, rulesText, -1);
+            sheet.addRule(selector, ruleText, -1);
         }
     }
+
 }
 export {
     getxCoord,
@@ -343,5 +388,6 @@ export {
     resolveRect,
     resolveArrow,
     resolveOption,
-    addStylesheetRules
+    addStylesheetRules,
+    resolveTransition
 }

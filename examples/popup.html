@@ -7,39 +7,57 @@
     <title>popup</title>
 </head>
 <style>
-    *{
-        margin:0;
+    * {
+        margin: 0;
         padding: 0;
     }
-    .popup-btn{
+
+    .popup-btn {
         position: absolute;
         top: 0;
         left: 600px;
         width: 80px;
         height: 30px;
     }
+
+    .ease-popup {
+        transition: all 0.3s linear;
+    }
+
+    /* .fade-in {
+        transform: translate(0, 0);
+    }
+
+    .fade-out {
+        transform: translate(0, 10px);
+    } */
 </style>
+
 <body>
     <button class="popup-btn">click</button>
-    <div class="popup">
+    <div class="ease-popup">
         <div class="popup-box">
             <div class="popup-content">
-                <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with ruby embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over her shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak is long and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is elegantly and domineeringly lying on a golden throne with a canopy. </span>
+                <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with ruby
+                    embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over her
+                    shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak is long
+                    and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is elegantly and
+                    domineeringly lying on a golden throne with a canopy. </span>
             </div>
         </div>
     </div>
-    
+
 </body>
 <script src="../dist/EasePopup.js"></script>
 <script>
-    
+
     const btn = document.querySelector(".popup-btn")
     const instance = new EasePopup(
         ".popup-btn",
-        ".popup",
+        ".ease-popup",
         {
-            direction: "right",
-            //width: "300",
+            direction: "bottom",
+            width: "300",
             needArrow: true,
         }
     )

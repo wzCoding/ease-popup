@@ -1,5 +1,17 @@
-import { resolveEl, resolveRect, resolveArrow, resolveOption, addStylesheetRules ,getxCoord, getyCoord, getDirection} from "./resolve"
 import { popupStyle } from "./option"
+import {
+    resolveEl,
+    resolveRect,
+    resolveArrow,
+    resolveOption,
+    resolveTransition,
+    addStylesheetRules,
+    getxCoord,
+    getyCoord,
+    getDirection,
+    getzIndex
+} from "./resolve"
+
 
 class Popup {
     constructor(target, popup, options = {}) {
@@ -9,16 +21,19 @@ class Popup {
 
         this.popup = resolveEl(popup)
         this.target = resolveEl(target)
-        this.options = options
-
-        addStylesheetRules([popupStyle.popup], 'ease-popup')
+        this.options = resolveOption(options)
+        console.log(this.options)
+        this.popup.classList.add('ease-popup')
+        for (const key of ['popup', 'enter', 'leave']) {
+            addStylesheetRules([popupStyle[key]], 'ease-popup')
+        }
 
         if (this.options.useCache) {
             this.state = 0
             this.styles = {}
         }
 
-        this.applyStyle(
+        this.update(
             this.computeStyle()
         )
 
@@ -36,34 +51,36 @@ class Popup {
 
         }
 
-        const resolved = resolveOption(this.options)
-
         const target = resolveRect(this.target)
 
-        const popup = resolveRect(this.popup, { ...resolved, target })
+        const popup = resolveRect(this.popup, { ...this.options, target })
 
-        const  safeDirection = getDirection(target, popup, resolved)
+        const safeDirection = getDirection(target, popup, this.options)
 
-        const { popupX, arrowX } = getxCoord(target, popup.width, resolved)
+        const { popupX, arrowX } = getxCoord(target, popup.width, this.options)
 
-        const { popupY, arrowY } = getyCoord(target, popup.height, resolved)
+        const { popupY, arrowY } = getyCoord(target, popup.height, this.options)
+        
+        const zIndex = getzIndex()
 
         const styles = {
             '--popup-x': `${popupX}px`,
             '--popup-y': `${popupY}px`,
             '--popup-width': `${popup.width}px`,
-            '--popup-background': `${resolved.background}`,
-            '--popup-color': `${resolved.color}`
+            '--popup-background': `${this.options.background}`,
+            '--popup-color': `${this.options.color}`,
+            '--popup-zIndex': `${zIndex}`
         }
 
-        if (resolved.needArrow) {
+        if (this.options.needArrow) {
             this.popup.classList.add('arrow')
-            addStylesheetRules([popupStyle.arrow], 'ease-popup-arrow')
+            addStylesheetRules([popupStyle.arrow], 'ease-popup')
 
             styles['--arrow-x'] = `${arrowX}px`
             styles['--arrow-y'] = `${arrowY}px`
-            styles['--arrow-size'] = `${resolved.arrowSize}px`
+            styles['--arrow-size'] = `${this.options.arrowSize}px`
             styles['--arrow-rotate'] = `${resolveArrow(safeDirection)}deg`
+            styles['--arrow-zIndex'] = `${zIndex - 1}`
         }
 
         this.options.direction = safeDirection
@@ -71,7 +88,8 @@ class Popup {
         return styles
     }
 
-    applyStyle(styles) {
+    update(styles) {
+
         for (let key in styles) {
             this.popup.style.setProperty(key, styles[key])
         }
@@ -79,25 +97,16 @@ class Popup {
         if (this.styles) this.styles = styles
 
         return styles
-    }
-
-    update() {
-
-        this.applyStyle(
-            this.computeStyle()
-        )
 
     }
 
     show() {
-        this.update()
-        this.popup.style.display = 'block'
-
+        this.update(this.computeStyle())
+        resolveTransition(this.popup, this.options.transition)
     }
 
     hide() {
-
-        this.popup.style.display = 'none'
+        resolveTransition(this.popup, this.options.transition, false)
     }
 
 }
