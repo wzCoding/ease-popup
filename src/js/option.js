@@ -1,6 +1,7 @@
 /**
  * popupOption对象，用于配置popup组件的选项。
  * @property {string} direction - popup显示的方向，默认值为 'top'，可取值为：'center','top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end','left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'。
+ * @property {string} trigger - popup的打开方式，默认值为 'click'，可取值为 'click','hover'
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
  * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能）。
@@ -15,6 +16,9 @@
 const popupOption = {
     //方向
     direction: 'top',
+    
+    //popup的打开方式
+    trigger: 'click',
 
     //popup宽度设置
     width: 'auto',
@@ -32,10 +36,10 @@ const popupOption = {
     arrowSize: 10,
 
     //popup与目标元素（触发元素）的间距
-    gap: 5,
+    targetGap: 5,
 
     //popup与body边缘的间距
-    offset: [10, 10],
+    boundryGap: [10, 10],
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
@@ -51,22 +55,21 @@ const popupOption = {
 const popupStyle = {
     popup: [
         ".popup",
+        ["display", "none"],
         ["position", "absolute"],
+        ["box-sizing", "border-box"],
         ["left","var(--popup-x)"],
         ["top","var(--popup-y)"],
-        ["z-index", "2"],
+        ["width", "var(--popup-width)"],
+        ["padding", "8px"],
+        ["color", "var(--popup-color)"],
+        ["background-color", "var(--popup-background)"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
-        ["padding", "8px"],
-        ["background-color", "var(--popup-background)"],
-        ["color", "var(--popup-color)"],
-        ["width", "var(--popup-width)"],
-        ["display", "none"],
-        //["transform", "translate(var(--popup-x), var(--popup-y))"],
-        ["box-sizing", "border-box"]
+        ["z-index", "2"],  
     ],
     arrow: [
-        ".popup.arrow-popup::after",
+        ".popup.arrow::after",
         ["content", "''"],
         ["display", "block"],
         ["z-index", "-1"],

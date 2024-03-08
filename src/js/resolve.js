@@ -6,6 +6,12 @@ function getRootSize() {
         rootHeight: document.documentElement.clientHeight
     }
 }
+function getzIndex() {
+    const result = [...document.querySelectorAll('*')].map(
+        el => getComputedStyle(el).zIndex !== 'auto'
+    )
+    return result.length > 0 ? Math.max(...result) + 1 : 0
+}
 function getDirByIndex(direction, index) {
     const mark = "-"
     const result = direction.split(mark)[index]
@@ -14,7 +20,7 @@ function getDirByIndex(direction, index) {
 
 function getxCoord(targeRect, popupWidth, options) {
     const { rootWidth } = getRootSize()
-    const { direction, gap, arrowSize, offset } = options
+    const { direction, targetGap, arrowSize, boundryGap } = options
     const { left: targetLeft, width: targetWidth } = targeRect
     const result = { popupX: 0, arrowX: 0 }
 
@@ -37,12 +43,12 @@ function getxCoord(targeRect, popupWidth, options) {
         }
 
         //validate
-        if (result.popupX < offset[0]) {
-            result.popupX = offset[0]
-            result.arrowX = targetLeft - offset[0] + targetWidth / 2 - arrowSize / 2
+        if (result.popupX < boundryGap[0]) {
+            result.popupX = boundryGap[0]
+            result.arrowX = targetLeft - boundryGap[0] + targetWidth / 2 - arrowSize / 2
         }
-        if (result.popupX + popupWidth > rootWidth - offset[0]) {
-            result.popupX = rootWidth - popupWidth - offset[0]
+        if (result.popupX + popupWidth > rootWidth - boundryGap[0]) {
+            result.popupX = rootWidth - popupWidth - boundryGap[0]
             result.arrowX = targetLeft - result.popupX + targetWidth / 2 - arrowSize / 2
         }
     }
@@ -52,13 +58,13 @@ function getxCoord(targeRect, popupWidth, options) {
 
         //left
         if (direction.includes('left')) {
-            result.popupX = targetLeft - popupWidth - gap - arrowSize
+            result.popupX = targetLeft - popupWidth - targetGap - arrowSize
             result.arrowX = popupWidth - arrowSize / 2
         }
 
         //right
         else if (direction.includes('right')) {
-            result.popupX = targetLeft + targetWidth + gap + arrowSize
+            result.popupX = targetLeft + targetWidth + targetGap + arrowSize
             result.arrowX = - arrowSize / 2
         }
     }
@@ -68,7 +74,7 @@ function getxCoord(targeRect, popupWidth, options) {
 
 function getyCoord(targetRect, popupHeight, options) {
     const { rootHeight } = getRootSize()
-    const { direction, gap, arrowSize, offset } = options
+    const { direction, targetGap, arrowSize, boundryGap } = options
     const result = { popupY: 0, arrowY: 0 }
     const targetHeight = targetRect.height
     let top = targetRect.top
@@ -78,13 +84,13 @@ function getyCoord(targetRect, popupHeight, options) {
 
         //top-Y
         if (direction.includes('top')) {
-            result.popupY = top - popupHeight - gap - arrowSize
+            result.popupY = top - popupHeight - targetGap - arrowSize
             result.arrowY = popupHeight - arrowSize / 2
         }
 
         //bottom-Y
         else if (direction.includes('bottom')) {
-            result.popupY = top + targetHeight + gap + arrowSize
+            result.popupY = top + targetHeight + targetGap + arrowSize
             result.arrowY = - arrowSize / 2
         }
     }
@@ -93,11 +99,11 @@ function getyCoord(targetRect, popupHeight, options) {
     if (horizontals.includes(direction)) { //计算水平方向（左右）的y坐标
 
         //validate
-        if (targetRect.top < offset[1]) {
-            top = offset[1]
+        if (targetRect.top < boundryGap[1]) {
+            top = boundryGap[1]
         }
-        if (targetRect.bottom < offset[1]) {
-            top = top - offset[1]
+        if (targetRect.bottom < boundryGap[1]) {
+            top = top - boundryGap[1]
         }
 
         //default-Y
@@ -117,12 +123,12 @@ function getyCoord(targetRect, popupHeight, options) {
         }
 
         //validate
-        if (result.popupY < offset[1]) {
-            result.popupY = offset[1]
+        if (result.popupY < boundryGap[1]) {
+            result.popupY = boundryGap[1]
             result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
         }
-        if (result.popupY + popupHeight > rootHeight - offset[1]) {
-            result.popupY = rootHeight - offset[1] - popupHeight
+        if (result.popupY + popupHeight > rootHeight - boundryGap[1]) {
+            result.popupY = rootHeight - boundryGap[1] - popupHeight
             result.arrowY = top - result.popupY + targetHeight / 2 - arrowSize / 2
         }
     }
@@ -132,7 +138,7 @@ function getyCoord(targetRect, popupHeight, options) {
 
 function getDirection(target, popup, options, state = 0) {
 
-    const { direction, arrowSize, gap, offset } = options
+    const { direction, arrowSize, targetGap, boundryGap } = options
 
     if (!verticals.concat(horizontals).includes(direction)) {
         throw new Error('direction is invalid!')
@@ -151,15 +157,15 @@ function getDirection(target, popup, options, state = 0) {
         {
             defaults: ['left', 'right'],
             reset: 'top' + subDirection,
-            popupSpace: popup.width + gap + arrowSize / 2 + offset[0]
+            popupSpace: popup.width + targetGap + arrowSize / 2 + boundryGap[0]
         },
         {
             defaults: ['top', 'bottom'],
             reset: 'left' + subDirection,
-            popupSpace: popup.height + gap + arrowSize / 2 + offset[1]
+            popupSpace: popup.height + targetGap + arrowSize / 2 + boundryGap[1]
         }
     ]
-    
+
     state++  //增加一次计数
 
     const { defaults, reset, popupSpace } = configs[Number(isVertical)]
@@ -225,12 +231,12 @@ function resolveRect(el, options) {
     let safeWidth = elWidth
 
     if (options) {
-        const { target, width, direction, arrowSize, gap, offset } = options
+        const { target, width, direction, arrowSize, targetGap, boundryGap } = options
         if (width === 'auto') {
             if (verticals.includes(direction)) {
-                safeWidth = rootWidth - safeWidth >= offset[0] * 2 ? safeWidth : rootWidth - offset[0] * 2
+                safeWidth = rootWidth - safeWidth >= boundryGap[0] * 2 ? safeWidth : rootWidth - boundryGap[0] * 2
             } else if (horizontals.includes(direction)) {
-                const blank = offset[0] + gap + arrowSize
+                const blank = boundryGap[0] + targetGap + arrowSize
                 const space = target.left > target.right ? target.left : target.right
                 safeWidth = space - safeWidth >= blank ? safeWidth : space - blank
             }
@@ -289,49 +295,49 @@ function resolveOption(options) {
     return resolved
 }
 
+ //this function is from MDN
 function addStylesheetRules(rules, id) {
-    if (!document.getElementById(id)) {
-        const style = document.createElement("style")
-        style.id = id
-        style.type = "text/css"
-        document.getElementsByTagName("head")[0].appendChild(style)
+   
+    if (document.getElementById(id)) return
+    const style = document.createElement("style")
+    style.id = id
+    style.type = "text/css"
+    document.getElementsByTagName("head")[0].appendChild(style)
 
-        if (!window.createPopup) {
-            /* For Safari */
-            style.appendChild(document.createTextNode(""))
+    if (!window.createPopup) {
+        style.appendChild(document.createTextNode(""))
+    }
+
+    const sheet = document.styleSheets[document.styleSheets.length - 1]
+
+    for (let index = 0; index < rules.length; index++) {
+
+        let rule = rules[index]
+        let selector = rule[0]
+        let rulesText = ""
+
+        let childIndex = 1
+        if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
+            rule = rule[1]
+            childIndex = 0
         }
 
-        const sheet = document.styleSheets[document.styleSheets.length - 1]
+        for (; childIndex < rule.length; childIndex++) {
+            let childRule = rule[childIndex]
+            rulesText += `${childRule[0]}:${childRule[1]}${childRule[2] ? " !important" : ""};\n`
+        }
 
-        for (let index = 0; index < rules.length; index++) {
-
-            let rule = rules[index]
-            let selector = rule[0]
-            let rulesText = ""
-
-            let childIndex = 1
-            if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
-                rule = rule[1]
-                childIndex = 0
-            }
-
-            for (; childIndex < rule.length; childIndex++) {
-                let childRule = rule[childIndex]
-                rulesText += `${childRule[0]}:${childRule[1]}${childRule[2] ? " !important" : ""};\n`
-            }
-
-            if (sheet.insertRule) {
-                sheet.insertRule(selector + "{" + rulesText + "}", sheet.cssRules.length);
-            } else {
-                /* IE */
-                sheet.addRule(selector, rulesText, -1);
-            }
+        if (sheet.insertRule) {
+            sheet.insertRule(selector + "{" + rulesText + "}", sheet.cssRules.length);
+        } else {
+            sheet.addRule(selector, rulesText, -1);
         }
     }
 }
 export {
     getxCoord,
     getyCoord,
+    getzIndex,
     getDirection,
     resolveEl,
     resolveRect,

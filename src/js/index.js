@@ -57,7 +57,7 @@ class Popup {
         }
 
         if (resolved.needArrow) {
-            this.popup.classList.add('arrow-popup')
+            this.popup.classList.add('arrow')
             addStylesheetRules([popupStyle.arrow], 'ease-popup-arrow')
 
             styles['--arrow-x'] = `${arrowX}px`

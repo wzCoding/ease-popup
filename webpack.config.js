@@ -12,7 +12,7 @@ module.exports = [
                 type: 'var',
                 export: 'default',
             },
-            clean:true
-        },
+            clean: true
+        }
     }
 ]
