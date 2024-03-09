@@ -12,12 +12,40 @@ import {
     getzIndex
 } from "./resolve"
 
+function resolveType(value) {
+    return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
+}
+function resolveArgs(args) {
 
+    let [target, popup] = [...args]
+
+    if (!target) {
+        throw new Error('the target element cannot be missing')
+    }
+
+    if (!resolveType(target).includes("element")) {
+        if (resolveType(target) === "string" && !resolveEl(target)) {
+            throw new Error('the target element cannot be missing')
+        }
+    }
+
+    if (popup) {
+        if (!resolveType(popup).includes("element")) {
+            if (resolveType(popup) === "string" && !resolveEl(popup)) {
+                
+            }
+        }
+    }
+
+    if(['element','string'].includes(resolveType(target))){
+
+    }
+
+
+}
 class Popup {
     constructor(target, popup, options = {}) {
-        if (!target) {
-            return
-        }
+        const args = resolveArgs(arguments)
 
         this.popup = resolveEl(popup)
         this.target = resolveEl(target)
@@ -60,7 +88,7 @@ class Popup {
         const { popupX, arrowX } = getxCoord(target, popup.width, this.options)
 
         const { popupY, arrowY } = getyCoord(target, popup.height, this.options)
-        
+
         const zIndex = getzIndex()
 
         const styles = {

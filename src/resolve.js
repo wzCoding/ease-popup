@@ -349,7 +349,6 @@ function addStylesheetRules(rules, id) {
         }
         sheet = document.styleSheets[document.styleSheets.length - 1]
     }
-    console.log(sheet)
     for (let index = 0; index < rules.length; index++) {
         let rule = rules[index]
         let selector = rule[0]

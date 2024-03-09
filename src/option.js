@@ -1,8 +1,8 @@
 /**
  * popupOption对象，用于配置popup组件的选项。
  * @property {string} direction - popup显示的方向，默认值为 'top'，可取值为：'center','top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end','left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'。
- * @property {string} trigger - popup的打开方式，默认值为 'click'，可取值为 'click','hover'
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
+ * @property {string} content - popup中要显示的内容，默认值为 'auto'
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
  * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能）。
  * @property {boolean} needArrow - 是否需要箭头。
@@ -14,14 +14,15 @@
  */
 
 const popupOption = {
+
     //方向
     direction: 'top',
 
-    //popup的打开方式
-    trigger: 'click',
-
     //popup宽度设置
     width: 'auto',
+    
+    //popup中要显示的内容
+    content: '',
 
     //popup的放置部位（位于目标元素的外部或者内部）
     placement: 'outside',
@@ -66,7 +67,7 @@ const popupStyle = {
         ["background-color", "var(--popup-background)"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
-        ["z-index", "var(--popup-zIndex)"],
+        ["z-index", "var(--popup-zIndex)",true],
     ],
     arrow: [
         ".ease-popup.arrow::after",
