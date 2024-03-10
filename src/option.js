@@ -10,7 +10,6 @@
  * @property {number} targetGap - popup与目标元素（触发元素）的间距。
  * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
  * @property {(object|string)} theme - popup的主题，默认值为'light'，可取值为'light'，'dark'，自定义的theme对象{background:'',color:''}。
- * @property {boolean} transition - popup的切换显隐时是否过渡，默认值为true。
  */
 
 const popupOption = {
@@ -44,12 +43,6 @@ const popupOption = {
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
-    
-    //popup切换显示与隐藏时是否使用过渡
-    transition: {
-        enter: "fade-in",
-        leave: "fade-out"
-    },
 
 }
 //popup的默认样式
@@ -59,38 +52,19 @@ const popupStyle = {
         ["display", "none"],
         ["position", "absolute"],
         ["box-sizing", "border-box"],
-        ["left", "var(--popup-x)"],
-        ["top", "var(--popup-y)"],
-        ["width", "var(--popup-width)"],
         ["padding", "8px"],
-        ["color", "var(--popup-color)"],
-        ["background-color", "var(--popup-background)"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
-        ["z-index", "var(--popup-zIndex)",true],
+        ["border","none"],
+        ["outline","none"]
     ],
     arrow: [
-        ".ease-popup.arrow::after",
-        ["content", "''"],
+        ".ease-popup .ease-popup-arrow",
         ["display", "block"],
-        ["z-index", "var(--arrow-zIndex)"],
         ["position", "absolute"],
-        ["left", "var(--arrow-x)"],
-        ["top", "var(--arrow-y)"],
-        ["background-color", "var(--popup-background)"],
-        ["width", "var(--arrow-size)"],
-        ["height", "var(--arrow-size)"],
-        ["transform", " rotate(var(--arrow-rotate))"],
+        ["background-color", " inherit"],
         ["box-shadow", "-1px 1px 1px rgba(0, 0, 0, 0.1)"]
-    ],
-    enter: [
-        ".ease-popup.fade-in",
-        ["opacity", "1"],
-    ],
-    leave: [
-        ".ease-popup.fade-out",
-        ["opacity", "0"],
-    ],
+    ]
 }
 //popup的主题样式
 const popupTheme = {

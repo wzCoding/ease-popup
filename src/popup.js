@@ -1,10 +1,8 @@
 import { popupStyle } from "./option"
 import {
-    resolveEl,
     resolveRect,
-    resolveArrow,
-    resolveOption,
-    resolveTransition,
+    resolveParam,
+    createArrow,
     addStylesheetRules,
     getxCoord,
     getyCoord,
@@ -12,49 +10,18 @@ import {
     getzIndex
 } from "./resolve"
 
-function resolveType(value) {
-    return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
-}
-function resolveArgs(args) {
 
-    let [target, popup] = [...args]
-
-    if (!target) {
-        throw new Error('the target element cannot be missing')
-    }
-
-    if (!resolveType(target).includes("element")) {
-        if (resolveType(target) === "string" && !resolveEl(target)) {
-            throw new Error('the target element cannot be missing')
-        }
-    }
-
-    if (popup) {
-        if (!resolveType(popup).includes("element")) {
-            if (resolveType(popup) === "string" && !resolveEl(popup)) {
-                
-            }
-        }
-    }
-
-    if(['element','string'].includes(resolveType(target))){
-
-    }
-
-
-}
 class Popup {
     constructor(target, popup, options = {}) {
-        const args = resolveArgs(arguments)
 
-        this.popup = resolveEl(popup)
-        this.target = resolveEl(target)
-        this.options = resolveOption(options)
-        console.log(this.options)
+        const resolved = resolveParam(arguments)
+        console.log(resolved)
+        this.target = resolved.target
+        this.popup = resolved.popup
+        this.options = resolved.options
+
         this.popup.classList.add('ease-popup')
-        for (const key of ['popup', 'enter', 'leave']) {
-            addStylesheetRules([popupStyle[key]], 'ease-popup')
-        }
+        addStylesheetRules([popupStyle.popup], 'ease-popup')
 
         if (this.options.useCache) {
             this.state = 0
@@ -89,26 +56,20 @@ class Popup {
 
         const { popupY, arrowY } = getyCoord(target, popup.height, this.options)
 
-        const zIndex = getzIndex()
+        const zIndex = getzIndex() + 1
 
         const styles = {
-            '--popup-x': `${popupX}px`,
-            '--popup-y': `${popupY}px`,
-            '--popup-width': `${popup.width}px`,
-            '--popup-background': `${this.options.background}`,
-            '--popup-color': `${this.options.color}`,
-            '--popup-zIndex': `${zIndex}`
+            'top': `${popupY}px`,
+            'left': `${popupX}px`,
+            'width': `${popup.width}px`,
+            'background-color': `${this.options.background}`,
+            'color': `${this.options.color}`,
+            'z-index': `${zIndex}`
         }
 
         if (this.options.needArrow) {
-            this.popup.classList.add('arrow')
             addStylesheetRules([popupStyle.arrow], 'ease-popup')
-
-            styles['--arrow-x'] = `${arrowX}px`
-            styles['--arrow-y'] = `${arrowY}px`
-            styles['--arrow-size'] = `${this.options.arrowSize}px`
-            styles['--arrow-rotate'] = `${resolveArrow(safeDirection)}deg`
-            styles['--arrow-zIndex'] = `${zIndex - 1}`
+            createArrow(this.popup, { safeDirection, arrowSize: this.options.arrowSize, arrowX, arrowY })
         }
 
         this.options.direction = safeDirection
@@ -130,11 +91,22 @@ class Popup {
 
     show() {
         this.update(this.computeStyle())
-        resolveTransition(this.popup, this.options.transition)
+        if (this.popup.show && typeof this.popup.show === 'function') {
+            this.popup.show()
+        }
+        this.popup.style.display = 'block'
     }
-
+    showModal() {
+        if (this.popup.showModal && typeof this.popup.showModal === 'function') {
+            this.popup.showModal()
+        }
+        this.popup.style.display = 'block'
+    }
     hide() {
-        resolveTransition(this.popup, this.options.transition, false)
+        if (this.popup.close && typeof this.popup.close === 'function') {
+            this.popup.show()
+        }
+        this.popup.style.display = 'none'
     }
 
 }

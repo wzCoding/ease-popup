@@ -187,11 +187,17 @@ function getDirection(target, popup, options, state = 0) {
     return result
 }
 
+function resolveType(value) {
+    return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
+}
+
 function resolveEl(el) {
-    if (typeof el === "string") {
-        return document.getElementById(el) || document.getElementsByClassName(el)[0] || document.querySelector(el)
+    let result
+    if (resolveType(el) === "string") {
+        result = document.getElementById(el) || document.getElementsByClassName(el)[0] || document.querySelector(el)
     }
-    return el
+    if (resolveType(el).includes("element")) result = el
+    return result
 }
 
 function resolveElSize(el) {
@@ -229,7 +235,6 @@ function resolveRect(el, options) {
     const { rootWidth, rootHeight } = getRootSize()
     const { top, right, bottom, left, height, width: elWidth } = resolveElSize(el)
     let safeWidth = elWidth
-
     if (options) {
         const { target, width, direction, arrowSize, targetGap, boundryGap } = options
         if (width === 'auto') {
@@ -247,7 +252,7 @@ function resolveRect(el, options) {
                 throw new Error('width is invalid!')
             }
         }
-        el.style.setProperty('--popup-width', `${safeWidth}px`)
+        el.style.setProperty('width', `${safeWidth}px`)
         safeWidth = resolveElSize(el).width
     }
 
@@ -261,17 +266,129 @@ function resolveRect(el, options) {
     }
 }
 
-function resolveArrow(direction) {
+function resolveParam(params) {
+    console.log(params)
+    let args = [...params]
+    let target, popup, options
+    if (!args.length) {
+        throw new Error('at least "target" parameter is required')
+    }
+    target = resolveTarget(args[0])
+    if (args.length === 1) {
+        options = resolveOption({})
+        popup = resolvePopup(popup, options)
+    }
+
+    if (args.length >= 2) {
+        const i = args[2] ? 2 : 1
+        options = resolveOption(resolveType(args[i]) === 'object' ? args[i] : {})
+        popup = resolvePopup(args[1], options)
+        console.log(args[1])
+    }
+    return { target, popup, options }
+}
+
+function resolveTarget(target) {
+    target = resolveEl(target)
+    if (!target) {
+        throw new Error('target parameter is invalid')
+    }
+    return target
+}
+function createPopup(options) {
+    let popup = document.createElement('dialog')
+    if (!popup.show && resolveType(popup.show) !== 'function') {
+        const configs = {
+            open: {
+                value: false,
+                writable: true,
+                configurable: false,
+            },
+            show: {
+                value: function (zIndex) {
+                    this.open = true
+                    this.style.display = 'block'
+                    if (zIndex) this.style.setProperty('--popup-zIndex', zIndex + 1)
+                },
+                writable: false,
+                configurable: false,
+            },
+            showModal: {
+                value: function () {
+                    const zIndex = createModal(this.open)
+                    this.show(zIndex)
+                },
+                writable: false,
+                configurable: false,
+            },
+            close: {
+                value: function () {
+                    this.open = false
+                    this.style.display = 'none'
+                    createModal(this.open)
+                },
+                writable: false,
+                configurable: false,
+            }
+        }
+        popup = document.createElement('div')
+        Object.defineProperties(popup, configs)
+    }
+    popup.className = 'ease-popup'
+    popup.innerHTML = options.content
+    document.body.appendChild(popup)
+
+    return popup
+}
+function createArrow(popup, options) {
+    const className = 'ease-popup-arrow'
+    let arrow = popup.querySelector(`.${className}`)
+    if (!arrow) {
+        arrow = document.createElement('span')
+        arrow.classList.add(className)
+        popup.appendChild(arrow)
+    }
     let rotate = 0
-
-    if (verticals.includes(direction)) {
-        rotate = direction.includes('top') ? -45 : 135
+    const { safeDirection, arrowSize, arrowX, arrowY } = options
+    if (verticals.includes(safeDirection)) {
+        rotate = safeDirection.includes('top') ? -45 : 135
     }
-    if (horizontals.includes(direction)) {
-        rotate = direction.includes('left') ? 225 : 45
+    if (horizontals.includes(safeDirection)) {
+        rotate = safeDirection.includes('left') ? 225 : 45
     }
-
-    return rotate
+    arrow.style.transform = `rotate(${rotate}deg)`
+    arrow.style.top = `${arrowY}px`
+    arrow.style.left = `${arrowX}px`
+    arrow.style.width = `${arrowSize}px`
+    arrow.style.height = `${arrowSize}px`
+    arrow.style.zIndex = popup.style.zIndex - 1
+    popup.classList.add('arrow')
+    return arrow
+}
+function createModal(show) {
+    const className = 'ease-popup-modal'
+    const zIndex = getzIndex() + 2
+    let modal = document.querySelector(`.${className}`)
+    if (!modal) {
+        modal = document.createElement('div')
+        modal.className = className
+        modal.style.backgroundColor = 'rgba(0,0,0,0.1)'
+        modal.style.zIndex = zIndex
+        modal.style.position = 'fixed'
+        modal.style.inset = '0'
+        modal.style.display = 'block'
+        document.body.appendChild(modal)
+    } else {
+        modal.style.display = show ? 'block' : 'none'
+    }
+    return zIndex
+}
+function resolvePopup(popup, options) {
+    popup = resolveEl(popup)
+    if (!popup) {
+        popup = createPopup(options)
+    }
+    return popup
 }
 
 function resolveOption(options) {
@@ -293,43 +410,6 @@ function resolveOption(options) {
     }
 
     return resolved
-}
-
-function resolveTransition(el, transitions, start = true) {
-
-    const getClass = (name) => {
-        let className
-        if (typeof transitions[name] === 'string') {
-            className = transitions[name]
-        } else {
-            className = `ease-popup-${name}`
-            addStylesheetRules([[`.${className}`, transitions[name]]], 'ease-popup')
-        }
-        return className
-    }
-    const enterClass = getClass('enter')
-    const leaveClass = getClass('leave')
-    if (start) {
-        new Promise((resolve) => {
-            el.classList.add(leaveClass)
-            el.style.display = 'block'
-            setTimeout(resolve, 0)
-        }).then(() => {
-            el.classList.remove(leaveClass)
-            el.classList.add(enterClass)
-        })
-    } else {
-        el.classList.add(leaveClass)
-    }
-
-    el.addEventListener('transitionend', function () {
-        if (!start) {
-            el.style.display = 'none'
-            el.classList.remove(leaveClass)
-        } else {
-            el.classList.remove(enterClass)
-        }
-    }, { once: true })
 }
 
 //this function is from MDN,and I just made some changes to
@@ -383,10 +463,9 @@ export {
     getyCoord,
     getzIndex,
     getDirection,
-    resolveEl,
+    resolveParam,
     resolveRect,
-    resolveArrow,
     resolveOption,
-    addStylesheetRules,
-    resolveTransition
+    createArrow,
+    addStylesheetRules
 }
