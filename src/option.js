@@ -4,11 +4,11 @@
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
  * @property {string} content - popup中要显示的内容，默认值为 'auto'
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
- * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能）。
- * @property {boolean} needArrow - 是否需要箭头。
- * @property {boolean} single - 是否同时只打开一个popup。
- * @property {boolean} open - 是否在开始直接显示popup。
- * @property {boolean} contentClick - 是否可以点击popup自身。
+ * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能），默认值为 false。
+ * @property {boolean} needArrow - 是否需要箭头，默认值为 true。
+ * @property {boolean} single - 是否同时只打开一个popup，默认值为 true。
+ * @property {boolean} contentClick - 是否可以点击popup自身，默认值为 true。
+ * @property {boolean} closeByOutSide - 是否在点击popup以外的区域时关闭popup，默认值为 true。
  * @property {number} arrowSize - 箭头尺寸。
  * @property {number} targetGap - popup与目标元素（触发元素）的间距。
  * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
@@ -40,9 +40,9 @@ const popupOption = {
 
     //是否可以点击popup自身
     contentClick: true,
-    
-    //是否直接显示popup
-    open: false,
+
+    //是否在点击popup以外的区域时关闭popup
+    closeByOutSide: true,
 
     //箭头尺寸
     arrowSize: 10,

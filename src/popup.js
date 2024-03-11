@@ -9,7 +9,14 @@ import {
     getDirection,
     getzIndex
 } from "./resolve"
-
+function resolveEvent(event) {
+    if (this.options.closeByOutSide && !this.popup.contains(event.target) && !this.target.contains(event.target)) {
+        this.popup.close()
+    }
+    if (!this.options.contentClick && !this.target.contains(event.target)) {
+        this.popup.close()
+    }
+}
 class Popup {
     constructor(target, popup, options = {}) {
 
@@ -17,10 +24,11 @@ class Popup {
         this.target = resolved.target
         this.popup = resolved.popup
         this.options = resolved.options
-      
+
         if (this.options.open) {
             popupStyle.popup.display = 'block'
         }
+
 
         this.popup.classList.add('ease-popup')
         addStylesheetRules([popupStyle.popup], 'ease-popup')
@@ -87,7 +95,9 @@ class Popup {
         return styles
 
     }
-
+    clickOutSide() {
+        return resolveEvent.bind(this)
+    }
     show() {
         this.update(this.computeStyle())
         this.popup.show()
@@ -95,12 +105,20 @@ class Popup {
             const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
             others.forEach(item => item.close())
         }
+
+        if (this.options.contentClick || this.options.closeByOutSide) {
+            this.clickOutSide = resolveEvent.bind(this)
+            document.addEventListener('click', this.clickOutSide, true)
+        }
     }
     showModal() {
         this.popup.showModal()
     }
     hide() {
         this.popup.close()
+        if (this.clickOutSide) {
+            document.removeEventListener('click', this.clickOutSide, true)
+        }
     }
 
 }
