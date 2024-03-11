@@ -202,12 +202,13 @@ function resolveEl(el) {
 
 function resolveElSize(el) {
     const display = getComputedStyle(el).getPropertyValue("display")
+    let rect
     if (display === "none") {
         const styles = [
-            { key: "display", value: "block", origin: getComputedStyle(el).getPropertyValue("display") },
             { key: "pointer-events", value: "none", origin: getComputedStyle(el).getPropertyValue("pointer-events") },
             { key: "visibility", value: "hidden", origin: getComputedStyle(el).getPropertyValue("visibility") },
             { key: "z-index", value: -999, origin: getComputedStyle(el).getPropertyValue("z-index") },
+            { key: "display", value: "block", origin: getComputedStyle(el).getPropertyValue("display") },
         ]
 
         // 利用visibility、z-index、pointer-events属性模拟display：none效果
@@ -216,17 +217,16 @@ function resolveElSize(el) {
         }
 
         // 获取元素尺寸信息
-        const rect = el.getBoundingClientRect()
+        rect = el.getBoundingClientRect()
 
         // 将元素样式恢复
         for (const item of styles) {
             el.style[item.key] = item.origin
         }
-
-        return rect
     } else {
-        return el.getBoundingClientRect()
+        rect = el.getBoundingClientRect()
     }
+    return rect
 }
 
 function resolveRect(el, options) {
@@ -267,7 +267,6 @@ function resolveRect(el, options) {
 }
 
 function resolveParam(params) {
-    console.log(params)
     let args = [...params]
     let target, popup, options
     if (!args.length) {
@@ -283,7 +282,6 @@ function resolveParam(params) {
         const i = args[2] ? 2 : 1
         options = resolveOption(resolveType(args[i]) === 'object' ? args[i] : {})
         popup = resolvePopup(args[1], options)
-        console.log(args[1])
     }
     return { target, popup, options }
 }
@@ -295,52 +293,7 @@ function resolveTarget(target) {
     }
     return target
 }
-function createPopup(options) {
-    let popup = document.createElement('dialog')
-    if (!popup.show && resolveType(popup.show) !== 'function') {
-        const configs = {
-            open: {
-                value: false,
-                writable: true,
-                configurable: false,
-            },
-            show: {
-                value: function (zIndex) {
-                    this.open = true
-                    this.style.display = 'block'
-                    if (zIndex) this.style.setProperty('--popup-zIndex', zIndex + 1)
-                },
-                writable: false,
-                configurable: false,
-            },
-            showModal: {
-                value: function () {
-                    const zIndex = createModal(this.open)
-                    this.show(zIndex)
-                },
-                writable: false,
-                configurable: false,
-            },
-            close: {
-                value: function () {
-                    this.open = false
-                    this.style.display = 'none'
-                    createModal(this.open)
-                },
-                writable: false,
-                configurable: false,
-            }
-        }
-        popup = document.createElement('div')
-        Object.defineProperties(popup, configs)
-    }
-    popup.className = 'ease-popup'
-    popup.innerHTML = options.content
-    document.body.appendChild(popup)
-
-    return popup
-}
-function createArrow(popup, options) {
+function resolveArrow(popup, options) {
     const className = 'ease-popup-arrow'
     let arrow = popup.querySelector(`.${className}`)
     if (!arrow) {
@@ -365,20 +318,20 @@ function createArrow(popup, options) {
     popup.classList.add('arrow')
     return arrow
 }
-function createModal(show) {
+function resolveModal(show, flag) {
     const className = 'ease-popup-modal'
     const zIndex = getzIndex() + 2
     let modal = document.querySelector(`.${className}`)
-    if (!modal) {
+    if (!modal && flag) {
         modal = document.createElement('div')
         modal.className = className
         modal.style.backgroundColor = 'rgba(0,0,0,0.1)'
         modal.style.zIndex = zIndex
         modal.style.position = 'fixed'
         modal.style.inset = '0'
-        modal.style.display = 'block'
         document.body.appendChild(modal)
-    } else {
+    }
+    if(modal){
         modal.style.display = show ? 'block' : 'none'
     }
     return zIndex
@@ -386,8 +339,52 @@ function createModal(show) {
 function resolvePopup(popup, options) {
     popup = resolveEl(popup)
     if (!popup) {
-        popup = createPopup(options)
+        popup = document.createElement('dialog')
+        if (!popup.show && resolveType(popup.show) !== 'function') {
+            popup = document.createElement('div')
+        }
+        document.body.appendChild(popup)
     }
+    if (!popup.show && resolveType(popup.show) !== 'function') {
+        const configs = {
+            open: {
+                value: false,
+                writable: true,
+                configurable: false,
+            },
+            show: {
+                value: function (zIndex) {
+                    this.open = true
+                    this.style.display = 'block'
+                    if (zIndex) this.style.setProperty('--popup-zIndex', zIndex + 1)
+                },
+                writable: false,
+                configurable: false,
+            },
+            showModal: {
+                value: function () {
+                    const zIndex = resolveModal(this.open, true)
+                    this.show(zIndex)
+                },
+                writable: false,
+                configurable: false,
+            },
+            close: {
+                value: function () {
+                    this.open = false
+                    this.style.display = 'none'
+                    resolveModal()
+                },
+                writable: false,
+                configurable: false,
+            }
+        }
+        Object.defineProperties(popup, configs)
+    }
+    const className = 'ease-popup'
+    popup.className += ` ${className} ${className}-${document.querySelectorAll(`.${className}`).length}`
+    if (options.content) popup.innerHTML = options.content
+
     return popup
 }
 
@@ -466,6 +463,6 @@ export {
     resolveParam,
     resolveRect,
     resolveOption,
-    createArrow,
+    resolveArrow,
     addStylesheetRules
 }

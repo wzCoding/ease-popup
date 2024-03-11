@@ -2,7 +2,7 @@ import { popupStyle } from "./option"
 import {
     resolveRect,
     resolveParam,
-    createArrow,
+    resolveArrow,
     addStylesheetRules,
     getxCoord,
     getyCoord,
@@ -10,19 +10,21 @@ import {
     getzIndex
 } from "./resolve"
 
-
 class Popup {
     constructor(target, popup, options = {}) {
 
         const resolved = resolveParam(arguments)
-        console.log(resolved)
         this.target = resolved.target
         this.popup = resolved.popup
         this.options = resolved.options
+      
+        if (this.options.open) {
+            popupStyle.popup.display = 'block'
+        }
 
         this.popup.classList.add('ease-popup')
         addStylesheetRules([popupStyle.popup], 'ease-popup')
-
+        addStylesheetRules([popupStyle.dialog], 'ease-popup')
         if (this.options.useCache) {
             this.state = 0
             this.styles = {}
@@ -31,7 +33,6 @@ class Popup {
         this.update(
             this.computeStyle()
         )
-
     }
 
     computeStyle() {
@@ -46,22 +47,20 @@ class Popup {
 
         }
 
-        const target = resolveRect(this.target)
+        const targetRect = resolveRect(this.target)
+        const popupRect = resolveRect(this.popup, { ...this.options, target: targetRect })
+        const safeDirection = getDirection(targetRect, popupRect, this.options)
 
-        const popup = resolveRect(this.popup, { ...this.options, target })
+        const { popupX, arrowX } = getxCoord(targetRect, popupRect.width, this.options)
 
-        const safeDirection = getDirection(target, popup, this.options)
-
-        const { popupX, arrowX } = getxCoord(target, popup.width, this.options)
-
-        const { popupY, arrowY } = getyCoord(target, popup.height, this.options)
+        const { popupY, arrowY } = getyCoord(targetRect, popupRect.height, this.options)
 
         const zIndex = getzIndex() + 1
 
         const styles = {
             'top': `${popupY}px`,
             'left': `${popupX}px`,
-            'width': `${popup.width}px`,
+            'width': `${popupRect.width}px`,
             'background-color': `${this.options.background}`,
             'color': `${this.options.color}`,
             'z-index': `${zIndex}`
@@ -69,7 +68,7 @@ class Popup {
 
         if (this.options.needArrow) {
             addStylesheetRules([popupStyle.arrow], 'ease-popup')
-            createArrow(this.popup, { safeDirection, arrowSize: this.options.arrowSize, arrowX, arrowY })
+            resolveArrow(this.popup, { safeDirection, arrowSize: this.options.arrowSize, arrowX, arrowY })
         }
 
         this.options.direction = safeDirection
@@ -91,22 +90,17 @@ class Popup {
 
     show() {
         this.update(this.computeStyle())
-        if (this.popup.show && typeof this.popup.show === 'function') {
-            this.popup.show()
+        this.popup.show()
+        if (this.options.single) {
+            const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
+            others.forEach(item => item.close())
         }
-        this.popup.style.display = 'block'
     }
     showModal() {
-        if (this.popup.showModal && typeof this.popup.showModal === 'function') {
-            this.popup.showModal()
-        }
-        this.popup.style.display = 'block'
+        this.popup.showModal()
     }
     hide() {
-        if (this.popup.close && typeof this.popup.close === 'function') {
-            this.popup.show()
-        }
-        this.popup.style.display = 'none'
+        this.popup.close()
     }
 
 }

@@ -34,7 +34,7 @@
     <button class="popup-btn">click</button>
 
     <button class="popup-btn1">click</button>
-    <dialog class="ease-popup1">
+    <div class="ease-popup">
         <div class="popup-box">
             <div class="popup-content">
                 <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with ruby
@@ -44,7 +44,7 @@
                     domineeringly lying on a golden throne with a canopy. </span>
             </div>
         </div>
-    </dialog>
+    </div>
 
 </body>
 <script src="../dist/EasePopup.js"></script>
@@ -52,47 +52,44 @@
 
     const btn = document.querySelector(".popup-btn")
     const btn1 = document.querySelector(".popup-btn1")
-    const dialog = document.querySelector(".ease-popup1")
+    const dialog = document.querySelector(".ease-popup")
     const instance = new EasePopup(
         ".popup-btn",
-        // ".ease-popup",
         {
             direction: "bottom",
-            // width: "300",
             needArrow: true,
             content:"hello"
         }
     )
     
-    let visible = false
     btn.addEventListener("click", () => {
-        if (visible) {
+        if (instance.popup.open) {
             instance.hide()
-            visible = false
         } else {
             instance.show()
-            visible = true
         }
     })
-    
+
     const instance1 = new EasePopup(
         btn1,
         dialog,
         {
-            direction: "bottom",
+            direction: "left",
             width: "300",
             needArrow: true,
         }
     )
-    let visible1 = false
+   
     btn1.addEventListener("click", () => {
-        if (visible1) {
+       
+        if (instance1.popup.open) {
+           
             instance1.hide()
-            visible1 = false
         } else {
+          
             instance1.show()
-            visible1 = true
         }
+        
     })
 </script>
 

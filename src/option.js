@@ -6,6 +6,9 @@
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
  * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能）。
  * @property {boolean} needArrow - 是否需要箭头。
+ * @property {boolean} single - 是否同时只打开一个popup。
+ * @property {boolean} open - 是否在开始直接显示popup。
+ * @property {boolean} contentClick - 是否可以点击popup自身。
  * @property {number} arrowSize - 箭头尺寸。
  * @property {number} targetGap - popup与目标元素（触发元素）的间距。
  * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
@@ -19,7 +22,7 @@ const popupOption = {
 
     //popup宽度设置
     width: 'auto',
-    
+
     //popup中要显示的内容
     content: '',
 
@@ -31,6 +34,15 @@ const popupOption = {
 
     //是否需要小箭头   
     needArrow: true,
+
+    //是否同时只打开一个popup
+    single: true,
+
+    //是否可以点击popup自身
+    contentClick: true,
+    
+    //是否直接显示popup
+    open: false,
 
     //箭头尺寸
     arrowSize: 10,
@@ -55,8 +67,9 @@ const popupStyle = {
         ["padding", "8px"],
         ["box-shadow", "0px 0px 6px rgba(0, 0, 0, 0.2)"],
         ["border-radius", "4px"],
-        ["border","none"],
-        ["outline","none"]
+        ["border", "none"],
+        ["outline", "none"],
+        ["margin", "0"]
     ],
     arrow: [
         ".ease-popup .ease-popup-arrow",
@@ -64,6 +77,10 @@ const popupStyle = {
         ["position", "absolute"],
         ["background-color", " inherit"],
         ["box-shadow", "-1px 1px 1px rgba(0, 0, 0, 0.1)"]
+    ],
+    dialog: [
+        "dialog[open]",
+        ["display", "block", true]
     ]
 }
 //popup的主题样式
