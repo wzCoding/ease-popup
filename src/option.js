@@ -9,7 +9,7 @@
  * @property {boolean} single - 是否同时只打开一个popup，默认值为 true。
  * @property {boolean} contentClick - 是否可以点击popup自身，默认值为 true。
  * @property {boolean} closeByOutSide - 是否在点击popup以外的区域时关闭popup，默认值为 true。
- * @property {number} arrowSize - 箭头尺寸。
+ * @property {boolean} container - target所在的容器，默认值为 body，可取值为一个选择器字符串或者一个dom元素。
  * @property {number} targetGap - popup与目标元素（触发元素）的间距。
  * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
  * @property {(object|string)} theme - popup的主题，默认值为'light'，可取值为'light'，'dark'，自定义的theme对象{background:'',color:''}。
@@ -29,9 +29,6 @@ const popupOption = {
     //popup的放置部位（位于目标元素的外部或者内部）
     placement: 'outside',
 
-    //是否使用样式缓存（使用缓存可以减少样式计算，提升性能）
-    useCache: false,
-
     //是否需要小箭头   
     needArrow: true,
 
@@ -44,14 +41,14 @@ const popupOption = {
     //是否在点击popup以外的区域时关闭popup
     closeByOutSide: true,
 
-    //箭头尺寸
-    arrowSize: 10,
+    //target所在的容器
+    container: 'body',
 
     //popup与目标元素（触发元素）的间距
-    targetGap: 5,
+    targetGap: 15,
 
     //popup与body边缘的间距
-    boundryGap: [10, 10],
+    boundryGap: 5,
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
@@ -69,12 +66,15 @@ const popupStyle = {
         ["border-radius", "4px"],
         ["border", "none"],
         ["outline", "none"],
-        ["margin", "0"]
+        ["margin", "0"],
+        ["width", "max-content"]
     ],
     arrow: [
         ".ease-popup .ease-popup-arrow",
         ["display", "block"],
         ["position", "absolute"],
+        ["width", "10px"],
+        ["height", "10px"],
         ["background-color", " inherit"],
         ["box-shadow", "-1px 1px 1px rgba(0, 0, 0, 0.1)"]
     ],
@@ -88,15 +88,27 @@ const popupTheme = {
     'light': { 'background': '#ffffff', 'color': '#333333' },
     'dark': { 'background': '#333333', 'color': '#ffffff' },
 }
-//纵向方向
-const verticals = ['top', 'top-start', 'top-end', 'center', 'bottom', 'bottom-start', 'bottom-end']
-//横向方向
-const horizontals = ['left', 'left-start', 'left-end', 'center', 'right', 'right-start', 'right-end']
+const arrowOption = {
+    rotate: {
+        top: -45,
+        bottom: 135,
+        left: 225,
+        right: 45,
+    },
+    side: {
+        top: 'bottom',
+        right: 'left',
+        bottom: 'top',
+        left: 'right',
+    }
+}
+//方向
+const directions = ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'center', 'right', 'right-start', 'right-end']
 
 export {
-    verticals,
-    horizontals,
+    directions,
     popupStyle,
     popupTheme,
-    popupOption
+    popupOption,
+    arrowOption
 }

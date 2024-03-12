@@ -12,40 +12,63 @@
         padding: 0;
     }
 
-    .popup-btn,.popup-btn1 {
+    .popup-btn,
+    .popup-btn1 {
         position: absolute;
         top: 0;
         left: 600px;
         width: 80px;
         height: 30px;
     }
-    .popup-btn1{
-        left: 200px;
+
+    .popup-btn1 {
+        left: 120px;
+        top: 200px;
     }
 
     .ease-popup {
         transition: all 0.3s linear;
     }
 
-   
+    .container{
+        width: 600px;
+        height: 500px;
+        border: 1px solid #000;
+        overflow: auto;
+        position: relative;
+        left: 300px;
+        top: 100px;
+    }
+    .box{
+        width: 100%;
+        height: 1500px;
+        position: relative;
+    }
 </style>
 
 <body>
     <button class="popup-btn">click</button>
 
-    <button class="popup-btn1">click</button>
+    <div class="container">
+        <div class="box">
+            <button class="popup-btn1">click</button>
+        </div>
+    </div>
     <div class="ease-popup">
         <div class="popup-box">
             <div class="popup-content">
-                <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with ruby
-                    embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over her
-                    shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak is long
-                    and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is elegantly and
+                <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with
+                    ruby
+                    embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over
+                    her
+                    shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak
+                    is long
+                    and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is
+                    elegantly and
                     domineeringly lying on a golden throne with a canopy. </span>
             </div>
         </div>
     </div>
-
 </body>
 <script src="../dist/EasePopup.js"></script>
 <script>
@@ -53,43 +76,45 @@
     const btn = document.querySelector(".popup-btn")
     const btn1 = document.querySelector(".popup-btn1")
     const dialog = document.querySelector(".ease-popup")
-    const instance = new EasePopup(
-        ".popup-btn",
-        {
-            direction: "bottom",
-            needArrow: true,
-            content:"hello"
-        }
-    )
-    
-    btn.addEventListener("click", () => {
-        if (instance.popup.open) {
-            instance.hide()
-        } else {
-            instance.show()
-        }
-    })
+    // const instance = new EasePopup(
+    //     ".popup-btn",
+    //     {
+    //         direction: "bottom",
+    //         needArrow: true,
+    //         content:"hello",
+    //         contentClick:false
+    //     }
+    // )
+
+    // btn.addEventListener("click", () => {
+    //     if (instance.popup.open) {
+    //         instance.hide()
+    //     } else {
+    //         instance.showModal()
+    //     }
+    // })
 
     const instance1 = new EasePopup(
         btn1,
         dialog,
         {
-            direction: "left",
-            width: "300",
+            direction: "top-end",
+            width: "auto",
             needArrow: true,
+            container:'.container'
         }
     )
-   
+
     btn1.addEventListener("click", () => {
-       
+
         if (instance1.popup.open) {
-           
+
             instance1.hide()
         } else {
-          
+
             instance1.show()
         }
-        console.log(instance1)
+
     })
 </script>
 
