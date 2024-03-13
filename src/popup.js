@@ -1,12 +1,12 @@
+import { autoUpdate } from '@floating-ui/dom'
 import { popupStyle } from "./option"
 import {
     resolveParam,
     resolveEvent,
+    updatePosition,
     addStylesheetRules,
-    updateStyles,
-    getPositionOptions
 } from "./resolve"
-import { computePosition } from '@floating-ui/dom';
+
 
 class Popup {
     constructor(target, popup, options = {}) {
@@ -18,42 +18,50 @@ class Popup {
 
         this.popup.classList.add('ease-popup')
 
-        addStylesheetRules([popupStyle.popup], 'ease-popup')
-        addStylesheetRules([popupStyle.dialog], 'ease-popup')
-        addStylesheetRules([popupStyle.arrow], 'ease-popup')
-    }
-    update() {
-        const positionOptions = getPositionOptions(this.popup, this.options)
-        computePosition(
-            this.target,
-            this.popup,
-            positionOptions
-        ).then((res) => {
-            console.log(res)
-            this.options.direction = res.placement
-            updateStyles(this.popup, this.options, res)
-        });
-    }
-    show(isDialog) {
-        this.update()
-        if (!isDialog) this.popup.show()
-        if (this.options.single) {
-            const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
-            others.forEach(item => item.close())
+        for (const key in popupStyle) {
+            addStylesheetRules([popupStyle[key]], 'ease-popup')
         }
 
-        this.clickOutSide = resolveEvent.bind(this)
-        document.addEventListener('click', this.clickOutSide, true)
+        this.cleanup = this.update()
+        this.handleEvent = resolveEvent.bind(this)
+    }
+    update() {
+        const callback = updatePosition.bind(this)
+        return autoUpdate(this.target, this.popup, callback)
+    }
+    show(isDialog,) {
+        this.popup.show()
+        if (this.options.single) {
+            const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
+            others.length && others.forEach(item => item.close && item.close())
+        }
+
+        document.addEventListener('click', this.handleEvent, true)
     }
     showModal() {
-        this.popup.showModal(this.options.container)
-        this.show(this.popup.nodeName == 'DIALOG')
+        if(this.options.fullscreen){
+            this.popup.showModal(this.options.container)
+        }else{
+           // this.show(this.popup.nodeName == 'DIALOG')
+            if(this.popup.nodeName == 'DIALOG'){
+                this.popup.show()
+                //
+            }else{
+                this.popup.showModal()
+            }
+        }  
     }
     hide() {
         this.popup.close()
-        if (this.clickOutSide) {
-            document.removeEventListener('click', this.clickOutSide, true)
-            this.clickOutSide = null
+        document.removeEventListener('click', this.handleEvent, true)
+    }
+    destroy() {
+        this.hide()
+        this.cleanup()
+        this.popup.remove()
+        document.removeEventListener('click', this.handleEvent, true)
+        for (let prop in this) {
+            this[prop] = null
         }
     }
 

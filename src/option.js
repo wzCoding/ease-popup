@@ -36,10 +36,16 @@ const popupOption = {
     single: true,
 
     //是否可以点击popup自身
-    contentClick: true,
+    selfClick: true,
 
     //是否在点击popup以外的区域时关闭popup
     closeByOutSide: true,
+
+    //是否全屏
+    fullScreen: false,
+
+    //是否滚动锁定
+    scrollLock: false,
 
     //target所在的容器
     container: 'body',
@@ -80,7 +86,14 @@ const popupStyle = {
     ],
     dialog: [
         "dialog[open]",
-        ["display", "block", true]
+        ["display", "block", true],
+        ["overflow","initial"]
+    ],
+    modal: [
+        ".ease-popup-modal",
+        ["background-color", "rgba(0,0,0,0.1)"],
+        ["position", "absolute"],
+        ["inset", "0"]
     ]
 }
 //popup的主题样式

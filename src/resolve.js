@@ -1,5 +1,6 @@
+import { computePosition, size, offset, arrow, flip, shift, hide, detectOverflow } from '@floating-ui/dom'
 import { popupOption, popupTheme, arrowOption } from "./option"
-import { size, offset, arrow, flip, shift, autoUpdate, detectOverflow } from '@floating-ui/dom';
+
 const preventOverflow = (options) => ({
     name: "preventOverflow",
     async fn(state) {
@@ -16,9 +17,22 @@ function apply(state) {
         maxHeight: `${state.availableHeight}px`
     })
 }
+function updatePosition() {
+    const positionOptions = getPositionOptions(this.popup, this.options)
+    computePosition(
+        this.target,
+        this.popup,
+        positionOptions
+    ).then((res) => {
+        console.log(res)
+        this.options.direction = res.placement
+        updateStyles.call(this, res)
+    });
+}
 
-function updateStyles(popup, options, data) {
+function updateStyles(data) {
     const zIndex = getzIndex() + 2
+    const { cleanup, popup, options } = this
     const { x, y, placement, middlewareData } = data
     const popupStyles = {
         'left': `${x}px`,
@@ -44,17 +58,14 @@ function updateStyles(popup, options, data) {
         }
         Object.assign(arrow.style, arrowStyles)
     }
+    if (middlewareData.hide.referenceHidden) {
+        popup.style.visibility = 'hidden'
+        cleanup && cleanup()
+    } else {
+        popup.style.visibility = 'visible'
+    }
+}
 
-}
-function autoUpdateStyles(target, popup, options) {
-    const func = updatePosition.bind(null, target, popup, options)
-    const cleanup = autoUpdate(
-        target,
-        popup,
-        func,
-    );
-    return cleanup
-}
 function getzIndex() {
     const result = [...document.querySelectorAll('*')].map(
         el => getComputedStyle(el).zIndex !== 'auto'
@@ -65,7 +76,7 @@ function getzIndex() {
 function getPositionOptions(popup, options) {
     const overflowOptions = {
         boundary: resolveEl(options.container),
-        padding: 5,
+        padding: options.boundryGap
     }
     const result = {
         placement: options.direction,
@@ -74,7 +85,8 @@ function getPositionOptions(popup, options) {
             flip(overflowOptions),  //设置popup自动调整方向
             shift(overflowOptions),  //设置popup不超出容器
             preventOverflow(overflowOptions), //设置popup防止溢出
-            size({ ...overflowOptions, apply }) //设置popup尺寸
+            size({ ...overflowOptions, apply }), //设置popup尺寸
+            hide(overflowOptions) //设置popup隐藏
         ]
     }
     if (options.needArrow) {
@@ -101,7 +113,10 @@ function resolveParam(params) {
     if (!args.length) {
         throw new Error('at least "target" parameter is required')
     }
-    target = resolveTarget(args[0])
+    target = resolveEl(args[0])
+    if (!target) {
+        throw new Error('target parameter is invalid')
+    }
     if (args.length === 1) {
         options = resolveOption({})
         popup = resolvePopup(popup, options)
@@ -116,25 +131,15 @@ function resolveParam(params) {
     return { target, popup, options }
 }
 
-function resolveTarget(target) {
-    target = resolveEl(target)
-    if (!target) {
-        throw new Error('target parameter is invalid')
-    }
-    return target
-}
-
 function resolveModal(container, show) {
     const className = 'ease-popup-modal'
     const zIndex = getzIndex() + 1
     let modal = document.querySelector(`.${className}`)
+    console.log(container)
     if (!modal && container) {
         modal = document.createElement('div')
         modal.className = className
-        modal.style.backgroundColor = 'rgba(0,0,0,0.1)'
         modal.style.zIndex = zIndex
-        modal.style.position = 'absolute'
-        modal.style.inset = '0'
         container.appendChild(modal)
     }
     if (modal) {
@@ -146,10 +151,11 @@ function resolvePopup(popup, options) {
     popup = resolveEl(popup)
     if (!popup) {
         popup = document.createElement('dialog')
+        const container = resolveEl(options.container)
         if (!popup.show && resolveType(popup.show) !== 'function') {
             popup = document.createElement('div')
         }
-        document.body.appendChild(popup)
+        container.appendChild(popup)
     }
     if (!popup.show && resolveType(popup.show) !== 'function') {
         const configs = {
@@ -185,10 +191,9 @@ function resolvePopup(popup, options) {
         }
         Object.defineProperties(popup, configs)
     }
-    const className = 'ease-popup'
-    popup.className += ` ${className} ${className}-${document.querySelectorAll(`.${className}`).length}`
-    if (options.content) popup.innerHTML = options.content
-
+    popup.className += ` ease-popup ease-popup-${document.querySelectorAll('.ease-popup').length}`
+    if (options.content) popup.innerHTML = `<div class='ease-popup-content'>${options.content}</div>`
+    if (options.width) popup.style.width = `${options.width}px`
     return popup
 }
 
@@ -207,11 +212,21 @@ function resolveOption(options) {
     return resolved
 }
 function resolveEvent(event) {
-    if (this.options.closeByOutSide && !this.popup.contains(event.target) && !this.target.contains(event.target)) {
-        this.hide()
-    }
-    if (!this.options.contentClick && !this.target.contains(event.target)) {
-        this.hide()
+    if (!this.target.contains(event.target)) {
+        //通过点击坐标判断是否是在popup元素自身或是外部，更兼容一些
+        const { x, y, width, height } = this.popup.getBoundingClientRect()
+        const endX = x + width
+        const endY = y + height
+        if (this.options.closeByOutSide) {
+            if (event.clientX > endX || event.clientX < x || event.clientY > endY || event.clientY < y) {
+                this.hide()
+            }
+        }
+        if (!this.options.selfClick) {
+            if (event.clientX > x && event.clientX < endX && event.clientY > y && event.clientY < endY) {
+                this.hide()
+            }
+        }
     }
 }
 function resolveArrow(popup) {
@@ -220,7 +235,6 @@ function resolveArrow(popup) {
     if (!arrow) {
         arrow = document.createElement('div')
         arrow.classList.add(className)
-        popup.classList.add('arrow')
         popup.appendChild(arrow)
     }
     return arrow
@@ -274,8 +288,7 @@ function addStylesheetRules(rules, id) {
 export {
     preventOverflow,
     apply,
-    updateStyles,
-    autoUpdateStyles,
+    updatePosition,
     getzIndex,
     getPositionOptions,
     resolveParam,

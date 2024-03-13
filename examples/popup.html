@@ -26,11 +26,12 @@
         top: 200px;
     }
 
-    .ease-popup {
+    /* .ease-popup {
         transition: all 0.3s linear;
-    }
+       
+    } */
 
-    .container{
+    .container {
         width: 600px;
         height: 500px;
         border: 1px solid #000;
@@ -39,7 +40,8 @@
         left: 300px;
         top: 100px;
     }
-    .box{
+
+    .box {
         width: 100%;
         height: 1500px;
         position: relative;
@@ -54,7 +56,7 @@
             <button class="popup-btn1">click</button>
         </div>
     </div>
-    <div class="ease-popup">
+    <dialog class="ease-popup">
         <div class="popup-box">
             <div class="popup-content">
                 <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with
@@ -68,7 +70,7 @@
                     domineeringly lying on a golden throne with a canopy. </span>
             </div>
         </div>
-    </div>
+    </dialog>
 </body>
 <script src="../dist/EasePopup.js"></script>
 <script>
@@ -98,21 +100,20 @@
         btn1,
         dialog,
         {
-            direction: "top-end",
-            width: "auto",
+            direction: "bottom-start",
             needArrow: true,
-            container:'.container'
+            container:'.container',
+            closeByOutSide:false
         }
     )
 
     btn1.addEventListener("click", () => {
-
+        //console.log(instance1)
         if (instance1.popup.open) {
-
             instance1.hide()
         } else {
-
-            instance1.show()
+            instance1.showModal()
+            //instance1.show()
         }
 
     })
