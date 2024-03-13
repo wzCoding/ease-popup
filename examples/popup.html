@@ -56,21 +56,19 @@
             <button class="popup-btn1">click</button>
         </div>
     </div>
-    <dialog class="ease-popup">
-        <div class="popup-box">
-            <div class="popup-content">
-                <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with
-                    ruby
-                    embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over
-                    her
-                    shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak
-                    is long
-                    and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is
-                    elegantly and
-                    domineeringly lying on a golden throne with a canopy. </span>
-            </div>
+    <div class="ease-popup">
+        <div class="popup-content">
+            <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with
+                ruby
+                embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over
+                her
+                shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak
+                is long
+                and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is
+                elegantly and
+                domineeringly lying on a golden throne with a canopy. </span>
         </div>
-    </dialog>
+    </div>
 </body>
 <script src="../dist/EasePopup.js"></script>
 <script>
@@ -97,25 +95,27 @@
     // })
 
     const instance1 = new EasePopup(
-        btn1,
+        'body',
         dialog,
         {
             direction: "bottom-start",
             needArrow: true,
-            container:'.container',
-            closeByOutSide:false
+            container: '.container',
+            closeByOutSide: true,
+            targetGap:0
+           
         }
     )
 
     btn1.addEventListener("click", () => {
-        //console.log(instance1)
+        
         if (instance1.popup.open) {
             instance1.hide()
         } else {
-            instance1.showModal()
-            //instance1.show()
+            //instance1.showModal()
+            instance1.show()
         }
-
+        console.log(instance1)
     })
 </script>
 

@@ -3,6 +3,7 @@ import { popupStyle } from "./option"
 import {
     resolveParam,
     resolveEvent,
+    resolveModal,
     updatePosition,
     addStylesheetRules,
 } from "./resolve"
@@ -29,9 +30,9 @@ class Popup {
         const callback = updatePosition.bind(this)
         return autoUpdate(this.target, this.popup, callback)
     }
-    show(isDialog,) {
-        this.popup.show()
-        if (this.options.single) {
+    show(isDialog) {
+        if (!isDialog) this.popup.show()
+        if (this.options.singleOpen) {
             const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
             others.length && others.forEach(item => item.close && item.close())
         }
@@ -39,20 +40,23 @@ class Popup {
         document.addEventListener('click', this.handleEvent, true)
     }
     showModal() {
-        if(this.options.fullscreen){
-            this.popup.showModal(this.options.container)
-        }else{
-           // this.show(this.popup.nodeName == 'DIALOG')
-            if(this.popup.nodeName == 'DIALOG'){
+        const isDialog = this.popup.nodeName == 'DIALOG'
+        if (!this.options.fullScreen) {
+            if (isDialog) {
                 this.popup.show()
-                //
-            }else{
-                this.popup.showModal()
+                resolveModal(this.options.container, true, this.options.fullScreen)
+            } else {
+                this.popup.showModal(this.options.container)
             }
-        }  
+        } else {
+            this.popup.showModal(document.body, this.options.fullScreen)
+        }
+        this.show(isDialog)
+
     }
     hide() {
         this.popup.close()
+        resolveModal()
         document.removeEventListener('click', this.handleEvent, true)
     }
     destroy() {

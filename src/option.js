@@ -4,11 +4,11 @@
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
  * @property {string} content - popup中要显示的内容，默认值为 'auto'
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
- * @property {boolean} useCache - 是否使用样式缓存（使用缓存可以减少样式计算，提升性能），默认值为 false。
  * @property {boolean} needArrow - 是否需要箭头，默认值为 true。
- * @property {boolean} single - 是否同时只打开一个popup，默认值为 true。
+ * @property {boolean} singleOpen - 是否同时只打开一个popup，默认值为 true。
  * @property {boolean} contentClick - 是否可以点击popup自身，默认值为 true。
  * @property {boolean} closeByOutSide - 是否在点击popup以外的区域时关闭popup，默认值为 true。
+ * @property {boolean} fullScreen - 遮罩层是否全屏，默认值为 false，这个属性只在showModal时生效。
  * @property {boolean} container - target所在的容器，默认值为 body，可取值为一个选择器字符串或者一个dom元素。
  * @property {number} targetGap - popup与目标元素（触发元素）的间距。
  * @property {number[]} boundryGap - popup与body边缘的间距，取值为 [x,y]，表示上下、左右距离边缘的间距，默认为 [10,10]。
@@ -33,7 +33,7 @@ const popupOption = {
     needArrow: true,
 
     //是否同时只打开一个popup
-    single: true,
+    singleOpen: true,
 
     //是否可以点击popup自身
     selfClick: true,
@@ -43,9 +43,6 @@ const popupOption = {
 
     //是否全屏
     fullScreen: false,
-
-    //是否滚动锁定
-    scrollLock: false,
 
     //target所在的容器
     container: 'body',
@@ -88,12 +85,6 @@ const popupStyle = {
         "dialog[open]",
         ["display", "block", true],
         ["overflow","initial"]
-    ],
-    modal: [
-        ".ease-popup-modal",
-        ["background-color", "rgba(0,0,0,0.1)"],
-        ["position", "absolute"],
-        ["inset", "0"]
     ]
 }
 //popup的主题样式

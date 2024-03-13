@@ -32,7 +32,7 @@ function updatePosition() {
 
 function updateStyles(data) {
     const zIndex = getzIndex() + 2
-    const { cleanup, popup, options } = this
+    const { popup, options } = this
     const { x, y, placement, middlewareData } = data
     const popupStyles = {
         'left': `${x}px`,
@@ -60,7 +60,6 @@ function updateStyles(data) {
     }
     if (middlewareData.hide.referenceHidden) {
         popup.style.visibility = 'hidden'
-        cleanup && cleanup()
     } else {
         popup.style.visibility = 'visible'
     }
@@ -128,23 +127,37 @@ function resolveParam(params) {
         popup = resolvePopup(args[1], options)
     }
 
+    if (options && target === document.body) {
+        options.container = document.body
+    }
+
     return { target, popup, options }
 }
 
-function resolveModal(container, show) {
+function resolveModal(container, show, fullScreen) {
     const className = 'ease-popup-modal'
-    const zIndex = getzIndex() + 1
     let modal = document.querySelector(`.${className}`)
-    console.log(container)
+    container = resolveEl(container)
     if (!modal && container) {
+        const zIndex = getzIndex() + 1
         modal = document.createElement('div')
         modal.className = className
         modal.style.zIndex = zIndex
-        container.appendChild(modal)
+        modal.style.position = 'fixed'
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
+        if (!fullScreen) {
+            const { x, y, width, height } = container.getBoundingClientRect()
+            modal.style.left = `${x}px`
+            modal.style.top = `${y}px`
+            modal.style.width = `${width}px`
+            modal.style.height = `${height}px`
+        } else {
+            modal.style.inset = '0'
+        }
+        document.body.appendChild(modal)
     }
     if (modal) {
         modal.style.display = show ? 'block' : 'none'
-        modal.parentNode.style.overflow = show ? 'hidden' : 'auto'
     }
 }
 function resolvePopup(popup, options) {
@@ -173,8 +186,8 @@ function resolvePopup(popup, options) {
                 configurable: false,
             },
             showModal: {
-                value: function (container) {
-                    resolveModal(resolveEl(container), true)
+                value: function (container, fullScreen) {
+                    resolveModal(container, true, fullScreen)
                 },
                 writable: false,
                 configurable: false,
@@ -183,7 +196,6 @@ function resolvePopup(popup, options) {
                 value: function () {
                     this.open = false
                     this.style.display = 'none'
-                    resolveModal()
                 },
                 writable: false,
                 configurable: false,
@@ -212,7 +224,7 @@ function resolveOption(options) {
     return resolved
 }
 function resolveEvent(event) {
-    if (!this.target.contains(event.target)) {
+    if (!this.target.contains(event.target) || this.target === document.body) {
         //通过点击坐标判断是否是在popup元素自身或是外部，更兼容一些
         const { x, y, width, height } = this.popup.getBoundingClientRect()
         const endX = x + width
@@ -239,8 +251,9 @@ function resolveArrow(popup) {
     }
     return arrow
 }
-//this function is from MDN,and I just made some changes to
-//support use one <style> tag to add styleRules 
+
+//I found this function on MDN and made some modifications 
+//to support adding styles using a single <style> tag
 function addStylesheetRules(rules, id) {
     let sheet
     if (document.getElementById(id)) {
@@ -294,5 +307,6 @@ export {
     resolveParam,
     resolveOption,
     resolveEvent,
+    resolveModal,
     addStylesheetRules,
 }
