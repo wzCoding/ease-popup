@@ -71,16 +71,32 @@ function getzIndex() {
     )
     return result.length > 0 ? Math.max(...result) + 1 : 0
 }
-
+function insideOffset(options) {
+    const { direction, width, offset } = options
+    return ({ rects }) => {
+        const result = { mainAxis: 0, crossAxis: 0 }
+        const [x = 0, y = 0] = offset
+        if (direction.includes('center')) {
+            result.mainAxis = rects.reference.width / 2 - rects.floating.width / 2 + x
+            result.crossAxis = rects.reference.height / 2 - rects.floating.height / 2 + y
+        }
+        if (direction.includes('left') || direction.includes('right')) {
+            result.mainAxis = -(width + x)
+            result.crossAxis = 0 + y
+        }
+        return result
+    }
+}
 function getPositionOptions(popup, options) {
     const overflowOptions = {
         boundary: resolveEl(options.container),
         padding: options.boundryGap
     }
+    const offsetOptions = options.placement === 'inside' ? insideOffset(options) : options.targetGap
     const result = {
         placement: options.direction,
         middleware: [
-            offset(options.targetGap), //设置popup平移距离
+            offset(offsetOptions), //设置popup平移距离
             flip(overflowOptions),  //设置popup自动调整方向
             shift(overflowOptions),  //设置popup不超出容器
             preventOverflow(overflowOptions), //设置popup防止溢出
@@ -94,10 +110,6 @@ function getPositionOptions(popup, options) {
     return result
 }
 
-function resolveType(value) {
-    return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
-}
-
 function resolveEl(el) {
     let result
     if (resolveType(el) === "string") {
@@ -106,6 +118,11 @@ function resolveEl(el) {
     if (resolveType(el).includes("element")) result = el
     return result
 }
+
+function resolveType(value) {
+    return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
+}
+
 function resolveParam(params) {
     let args = [...params]
     let target, popup, options
@@ -129,11 +146,22 @@ function resolveParam(params) {
 
     if (options && target === document.body) {
         options.container = document.body
+        options.placement = 'inside'
+        options.needArrow = false
     }
 
     return { target, popup, options }
 }
-
+function resolveArrow(popup) {
+    const className = 'ease-popup-arrow'
+    let arrow = popup.querySelector(`.${className}`)
+    if (!arrow) {
+        arrow = document.createElement('div')
+        arrow.classList.add(className)
+        popup.appendChild(arrow)
+    }
+    return arrow
+}
 function resolveModal(container, show, fullScreen) {
     const className = 'ease-popup-modal'
     let modal = document.querySelector(`.${className}`)
@@ -240,16 +268,6 @@ function resolveEvent(event) {
             }
         }
     }
-}
-function resolveArrow(popup) {
-    const className = 'ease-popup-arrow'
-    let arrow = popup.querySelector(`.${className}`)
-    if (!arrow) {
-        arrow = document.createElement('div')
-        arrow.classList.add(className)
-        popup.appendChild(arrow)
-    }
-    return arrow
 }
 
 //I found this function on MDN and made some modifications 

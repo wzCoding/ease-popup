@@ -18,7 +18,7 @@
 const popupOption = {
 
     //方向
-    direction: 'top',
+    direction: 'bottom',
 
     //popup宽度设置
     width: 'auto',
@@ -53,6 +53,9 @@ const popupOption = {
     //popup与body边缘的间距
     boundryGap: 5,
 
+    //popup的偏移量
+    offset: [0, 0],
+
     //popup的主题（文字颜色与背景色）
     theme: 'light',
 
@@ -84,7 +87,7 @@ const popupStyle = {
     dialog: [
         "dialog[open]",
         ["display", "block", true],
-        ["overflow","initial"]
+        ["overflow", "initial"]
     ]
 }
 //popup的主题样式
@@ -92,6 +95,7 @@ const popupTheme = {
     'light': { 'background': '#ffffff', 'color': '#333333' },
     'dark': { 'background': '#333333', 'color': '#ffffff' },
 }
+//arrow箭头的配置
 const arrowOption = {
     rotate: {
         top: -45,
@@ -106,8 +110,11 @@ const arrowOption = {
         left: 'right',
     }
 }
-//方向
-const directions = ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'center', 'right', 'right-start', 'right-end']
+//popup的方向
+const directions = {
+    outside: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'],
+    inside: ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end', 'center', 'center-start', 'center-end']
+}
 
 export {
     directions,
