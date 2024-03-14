@@ -9,7 +9,7 @@ import {
 } from "./resolve"
 
 
-class Popup {
+class EasePopup {
     constructor(target, popup, options = {}) {
 
         const resolved = resolveParam(arguments)
@@ -54,13 +54,14 @@ class Popup {
         this.show(isDialog)
 
     }
-    hide() {
+    hide(isDestroy) {
         this.popup.close()
-        resolveModal()
+        const modal = resolveModal()
+        if(isDestroy && modal) modal.remove()
         document.removeEventListener('click', this.handleEvent, true)
     }
     destroy() {
-        this.hide()
+        this.hide(true)
         this.cleanup()
         this.popup.remove()
         document.removeEventListener('click', this.handleEvent, true)
@@ -71,4 +72,4 @@ class Popup {
 
 }
 
-export default Popup
+export default EasePopup

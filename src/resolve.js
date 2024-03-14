@@ -1,5 +1,5 @@
 import { computePosition, size, offset, arrow, flip, shift, hide, detectOverflow } from '@floating-ui/dom'
-import { popupOption, popupTheme, arrowOption } from "./option"
+import { popupOption, popupTheme, arrowOption, directions } from "./option"
 
 const preventOverflow = (options) => ({
     name: "preventOverflow",
@@ -89,7 +89,7 @@ function insideOffset(options) {
 }
 function getPositionOptions(popup, options) {
     const overflowOptions = {
-        boundary: resolveEl(options.container),
+        boundary: options.container,
         padding: options.boundryGap
     }
     const offsetOptions = options.placement === 'inside' ? insideOffset(options) : options.targetGap
@@ -134,7 +134,7 @@ function resolveParam(params) {
         throw new Error('target parameter is invalid')
     }
     if (args.length === 1) {
-        options = resolveOption({})
+        options = resolveOption()
         popup = resolvePopup(popup, options)
     }
 
@@ -144,10 +144,12 @@ function resolveParam(params) {
         popup = resolvePopup(args[1], options)
     }
 
-    if (options && target === document.body) {
-        options.container = document.body
-        options.placement = 'inside'
+    if (options.placement === 'inside') {
         options.needArrow = false
+        options.container = target
+    }
+    if(target === document.body||options.container === document.body){
+        options.fullScreen = true
     }
 
     return { target, popup, options }
@@ -164,8 +166,7 @@ function resolveArrow(popup) {
 }
 function resolveModal(container, show, fullScreen) {
     const className = 'ease-popup-modal'
-    let modal = document.querySelector(`.${className}`)
-    container = resolveEl(container)
+    let modal = resolveEl(`.${className}`)
     if (!modal && container) {
         const zIndex = getzIndex() + 1
         modal = document.createElement('div')
@@ -173,30 +174,34 @@ function resolveModal(container, show, fullScreen) {
         modal.style.zIndex = zIndex
         modal.style.position = 'fixed'
         modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
+        document.body.appendChild(modal)
         if (!fullScreen) {
+
+            const { left, top } = getComputedStyle(container)
             const { x, y, width, height } = container.getBoundingClientRect()
-            modal.style.left = `${x}px`
-            modal.style.top = `${y}px`
+
+            modal.style.left = `${left && left != 'auto' ? left : x + 'px'}`
+            modal.style.top = `${top && top != 'auto' ? top : y + 'px'}`
             modal.style.width = `${width}px`
             modal.style.height = `${height}px`
         } else {
             modal.style.inset = '0'
-        }
-        document.body.appendChild(modal)
+        }   
     }
     if (modal) {
         modal.style.display = show ? 'block' : 'none'
     }
+    return modal
 }
 function resolvePopup(popup, options) {
     popup = resolveEl(popup)
     if (!popup) {
         popup = document.createElement('dialog')
-        const container = resolveEl(options.container)
         if (!popup.show && resolveType(popup.show) !== 'function') {
             popup = document.createElement('div')
         }
-        container.appendChild(popup)
+        console.log(options)
+        options.container.appendChild(popup)
     }
     if (!popup.show && resolveType(popup.show) !== 'function') {
         const configs = {
@@ -237,12 +242,30 @@ function resolvePopup(popup, options) {
     return popup
 }
 
-function resolveOption(options) {
+function resolveOption(options = {}) {
     const resolved = Object.assign({}, popupOption, options)
-    if (!resolved.needArrow) {
-        resolved.arrowSize = 0
-    }
 
+    if (resolved.width !== 'auto' && isNaN(resolved.width)) {
+        throw new Error('the width option is invalid')
+    }
+    if (isNaN(resolved.targetGap)) {
+        throw new Error('the targetGap option is invalid')
+    }
+    if (isNaN(resolved.boundryGap)) {
+        throw new Error('the boundryGap option is invalid')
+    }
+    if (!Object.keys(directions).includes(resolved.placement)) {
+        throw new Error('the placement option is invalid')
+    }
+    if (!resolveEl(resolved.container)) {
+        throw new Error('the container option is invalid')
+    }
+    if (!directions[resolved.placement].includes(resolved.direction)) {
+        throw new Error(`the direction does not comply with the placement option: '${resolved.placement}'`)
+    }
+    if (resolved.container) {
+        resolved.container = resolveEl(resolved.container)
+    }
     if (resolved.theme) {
         if (popupTheme[resolved.theme]) {
             resolved.theme = popupTheme[resolved.theme]
