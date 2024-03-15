@@ -1,7 +1,7 @@
 const path = require('path')
 const webpackConfigs = [
     {
-        filename: 'EasePopup.cjs',
+        filename: 'EasePopup.js',
         libType: 'umd',
         externals:['@floating-ui/dom'],
         clean:true
