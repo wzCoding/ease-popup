@@ -1,22 +1,21 @@
 # ease-popup
-a simple, convenient and useful javascript plugin for popup
+一个简单、方便、有用的js弹窗插件，基于 `floating-ui` 制作
 
 ## 介绍
 1. 这是一个简单、方便、好用的js弹窗插件，可以作为tooltip提示框、dialog对话框等使用，也可以在此基础上自由封装改造。
 2. 本弹窗插件基于 [floating-ui] 制作，弹窗可选位置齐全，功能相对完善，配置简单。
 3. 弹窗使用 html5 `dialog` 元素生成，也支持使用 `div` 元素，兼容性较好。
-
+4. 弹窗只提供基础样式，不用引入额外的 CSS 文件，想要其他样式可以自行定义编写。
+   
 ## 安装
 推荐使用 npm包 的方式进行安装
 ```
 npm install ease-popup
-
 ```
 或者也可以使用 `<script>` 标签引入
 
 ```
 <script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.0.0/dist/EasePopup.min.js"></script>
-
 ```
 
 ## 使用
