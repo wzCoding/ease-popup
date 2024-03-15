@@ -2,6 +2,8 @@
   "name": "ease-popup",
   "version": "1.0.0",
   "description": "a simple, convenient and useful javascript plugin for popup",
+  "main": "./dist/EasePopup.js",
+  "exports": "./dist/EasePopup.js",
   "directories": {
     "doc": "docs",
     "example": "examples"

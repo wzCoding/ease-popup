@@ -1,6 +1,6 @@
 /**
  * popupOption对象，用于配置popup组件的选项。
- * @property {string} direction - popup显示的方向，默认值为 'top'，可取值为：'center','top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end','left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'。
+ * @property {string} direction - popup显示的方向，默认值为 'bottom'，可取值为：'top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end','left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'。
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
  * @property {string} content - popup中要显示的内容，默认值为 ''
  * @property {string} placement - popup的放置部位（位于目标元素的外部或者内部），默认值为 'outside'，可取值为：'outside','inside'
@@ -51,7 +51,7 @@ const popupOption = {
     //popup与目标元素（触发元素）的间距
     targetGap: 15,
 
-    //popup与body边缘的间距
+    //popup与容器边缘的间距
     boundryGap: 5,
 
     //popup的偏移量
