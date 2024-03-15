@@ -47,7 +47,7 @@ JavaScript 部分
 const btn = document.getElementById('popupBtn');
 const popup = document.querySelector('.ease-popup');
 
-//new EasePopup(target,popup,options)
+
 const instance = new EasePopup(btn,popup,{
     "direction":"top",
 })
@@ -59,6 +59,18 @@ instance.destroy(); // 销毁弹窗
 
 ```
 
+多种使用方式
+```js
+//一般用法，target参数是必须的
+new EasePopup(target,popup,options)  
+
+//只有target与options，将自动创建popup
+new EasePopup(target,options) 
+
+//只有target与popup，将使用默认的options配置
+new EasePopup(target,popup) 
+
+```
 ## options选项参数
 
 | 参数名         | 类型          | 默认值    | 说明                                                                                                           |
