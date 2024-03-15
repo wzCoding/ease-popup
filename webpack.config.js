@@ -1,18 +1,55 @@
-const path = require('path');
-
-module.exports = [
+const path = require('path')
+const webpackConfigs = [
     {
+        filename: 'EasePopup.cjs',
+        libType: 'umd',
+        externals:['@floating-ui/dom'],
+        clean:true
+    },
+    {
+        filename: 'EasePopup.min.js',
+        libType: 'var',
+        externals:[],
+        clean:false
+    }
+]
+
+module.exports = webpackConfigs.map(config => {
+    return {
         mode: 'production',
         entry: './src/popup.js',
         output: {
-            filename: 'EasePopup.js',
+            filename: config.filename,
             path: path.resolve(__dirname, 'dist'),
             library: {
                 name: 'EasePopup',
-                type: 'var',
+                type: config.libType,
                 export: 'default',
             },
-            clean: true
-        }
+            globalObject: 'this',
+            clean: config.clean
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.m?js$/,
+                    exclude: /(node_modules|bower_components)/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                ['@babel/preset-env', {
+                                    useBuiltIns: 'entry',
+                                    targets: '> 0.25%, not dead',
+                                    corejs: 3
+                                }]
+                            ],
+                            plugins: ['@babel/plugin-transform-runtime'],
+                        },
+                    },
+                },
+            ]
+        },
+        externals:config.externals,
     }
-]
+})

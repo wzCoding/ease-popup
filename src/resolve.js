@@ -1,5 +1,5 @@
 import { computePosition, size, offset, arrow, flip, shift, hide, detectOverflow } from '@floating-ui/dom'
-import { popupOption, popupTheme, arrowOption, directions } from "./option"
+import { popupOption, popupTheme, arrowOption, popupName, arrowName, modalName, directions } from "./option"
 
 const preventOverflow = (options) => ({
     name: "preventOverflow",
@@ -24,7 +24,6 @@ function updatePosition() {
         this.popup,
         positionOptions
     ).then((res) => {
-        console.log(res)
         this.options.direction = res.placement
         updateStyles.call(this, res)
     });
@@ -42,7 +41,6 @@ function updateStyles(data) {
         'color': `${options.theme.color}`,
     }
     Object.assign(popup.style, popupStyles)
-    // 更新箭头样式
     if (options.needArrow) {
         const arrow = resolveArrow(popup)
         const { x, y } = middlewareData.arrow
@@ -58,11 +56,7 @@ function updateStyles(data) {
         }
         Object.assign(arrow.style, arrowStyles)
     }
-    if (middlewareData.hide.referenceHidden) {
-        popup.style.visibility = 'hidden'
-    } else {
-        popup.style.visibility = 'visible'
-    }
+    popup.style.visibility = middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
 }
 
 function getzIndex() {
@@ -127,11 +121,11 @@ function resolveParam(params) {
     let args = [...params]
     let target, popup, options
     if (!args.length) {
-        throw new Error('at least "target" parameter is required')
+        logError('at least "target" parameter is required')
     }
     target = resolveEl(args[0])
     if (!target) {
-        throw new Error('target parameter is invalid')
+        logError('target parameter is invalid')
     }
     if (args.length === 1) {
         options = resolveOption()
@@ -148,30 +142,27 @@ function resolveParam(params) {
         options.needArrow = false
         options.container = target
     }
-    if(target === document.body||options.container === document.body){
+    if (target === document.body || options.container === document.body) {
         options.fullScreen = true
     }
 
     return { target, popup, options }
 }
 function resolveArrow(popup) {
-    const className = 'ease-popup-arrow'
-    let arrow = popup.querySelector(`.${className}`)
+    let arrow = popup.querySelector(`.${arrowName}`)
     if (!arrow) {
         arrow = document.createElement('div')
-        arrow.classList.add(className)
+        arrow.classList.add(arrowName)
         popup.appendChild(arrow)
     }
     return arrow
 }
 function resolveModal(container, show, fullScreen) {
-    const className = 'ease-popup-modal'
-    let modal = resolveEl(`.${className}`)
+    let modal = resolveEl(`.${modalName}`)
     if (!modal && container) {
-        const zIndex = getzIndex() + 1
         modal = document.createElement('div')
-        modal.className = className
-        modal.style.zIndex = zIndex
+        modal.className = modalName
+        modal.style.zIndex = getzIndex() + 1
         modal.style.position = 'fixed'
         modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
         document.body.appendChild(modal)
@@ -186,7 +177,7 @@ function resolveModal(container, show, fullScreen) {
             modal.style.height = `${height}px`
         } else {
             modal.style.inset = '0'
-        }   
+        }
     }
     if (modal) {
         modal.style.display = show ? 'block' : 'none'
@@ -200,7 +191,6 @@ function resolvePopup(popup, options) {
         if (!popup.show && resolveType(popup.show) !== 'function') {
             popup = document.createElement('div')
         }
-        console.log(options)
         options.container.appendChild(popup)
     }
     if (!popup.show && resolveType(popup.show) !== 'function') {
@@ -236,8 +226,8 @@ function resolvePopup(popup, options) {
         }
         Object.defineProperties(popup, configs)
     }
-    popup.className += ` ease-popup ease-popup-${document.querySelectorAll('.ease-popup').length}`
-    if (options.content) popup.innerHTML = `<div class='ease-popup-content'>${options.content}</div>`
+    popup.className += ` ${popupName} ${popupName}-${document.getElementsByClassName(popupName).length}`
+    if (options.content) popup.innerHTML = `<div class='${popupName}-content'>${options.content}</div>`
     if (options.width) popup.style.width = `${options.width}px`
     return popup
 }
@@ -246,22 +236,22 @@ function resolveOption(options = {}) {
     const resolved = Object.assign({}, popupOption, options)
 
     if (resolved.width !== 'auto' && isNaN(resolved.width)) {
-        throw new Error('the width option is invalid')
+        logError('the width option is invalid')
     }
     if (isNaN(resolved.targetGap)) {
-        throw new Error('the targetGap option is invalid')
+        logError('the targetGap option is invalid')
     }
     if (isNaN(resolved.boundryGap)) {
-        throw new Error('the boundryGap option is invalid')
+        logError('the boundryGap option is invalid')
     }
     if (!Object.keys(directions).includes(resolved.placement)) {
-        throw new Error('the placement option is invalid')
+        logError('the placement option is invalid')
     }
     if (!resolveEl(resolved.container)) {
-        throw new Error('the container option is invalid')
+        logError('the container option is invalid')
     }
     if (!directions[resolved.placement].includes(resolved.direction)) {
-        throw new Error(`the direction does not comply with the placement option: '${resolved.placement}'`)
+        logError(`the direction does not comply with the placement option: '${resolved.placement}'`)
     }
     if (resolved.container) {
         resolved.container = resolveEl(resolved.container)
@@ -292,7 +282,9 @@ function resolveEvent(event) {
         }
     }
 }
-
+function logError(errorInfo) {
+    throw new Error(errorInfo)
+}
 //I found this function on MDN and made some modifications 
 //to support adding styles using a single <style> tag
 function addStylesheetRules(rules, id) {

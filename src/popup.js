@@ -1,5 +1,5 @@
 import { autoUpdate } from '@floating-ui/dom'
-import { popupStyle } from "./option"
+import { popupStyle, popupName } from "./option"
 import {
     resolveParam,
     resolveEvent,
@@ -10,17 +10,17 @@ import {
 
 
 class EasePopup {
-    constructor(target, popup, options = {}) {
+    constructor(target, popup, options) {
 
-        const resolved = resolveParam(arguments)
+        const resolved = resolveParam([target, popup, options])
         this.target = resolved.target
         this.popup = resolved.popup
         this.options = resolved.options
 
-        this.popup.classList.add('ease-popup')
+        this.popup.classList.add(popupName)
 
         for (const key in popupStyle) {
-            addStylesheetRules([popupStyle[key]], 'ease-popup')
+            addStylesheetRules([popupStyle[key]], popupName)
         }
 
         this.cleanup = this.update()
@@ -33,7 +33,7 @@ class EasePopup {
     show(isDialog) {
         if (!isDialog) this.popup.show()
         if (this.options.singleOpen) {
-            const others = [...document.getElementsByClassName('ease-popup')].filter(item => item !== this.popup)
+            const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.popup)
             others.length && others.forEach(item => item.close && item.close())
         }
 
@@ -57,7 +57,7 @@ class EasePopup {
     hide(isDestroy) {
         this.popup.close()
         const modal = resolveModal()
-        if(isDestroy && modal) modal.remove()
+        if (isDestroy && modal) modal.remove()
         document.removeEventListener('click', this.handleEvent, true)
     }
     destroy() {
