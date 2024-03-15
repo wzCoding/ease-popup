@@ -31,11 +31,6 @@
         top: 200px;
     }
 
-    /* .ease-popup {
-        transition: all 0.3s linear;
-       
-    } */
-
     .container {
         width: 600px;
         height: 500px;
@@ -51,6 +46,10 @@
         height: 1500px;
         position: relative;
     }
+
+    .ease-popup{
+        display: none;
+    }
 </style>
 
 <body>
@@ -63,19 +62,13 @@
     </div>
     <div class="ease-popup">
         <div class="popup-content">
-            <span>A young and beautiful blonde superwoman wears a slim-fitting silk coronation gown with
-                ruby
-                embroidery and gold dragon patterns, and a luxurious and soft coronation cape draped over
-                her
-                shoulders. The coronation cape is made of goose-yellow silk and white velvet trim. The cloak
-                is long
-                and wide. The Queen is wearing a coronation cloak with a lazy expression. The Queen is
-                elegantly and
-                domineeringly lying on a golden throne with a canopy. </span>
+            <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque, id repellat. Consequuntur, similique
+                odit quam perspiciatis vero blanditiis eum accusamus ex, ipsum illo reiciendis sint eos possimus? Harum,
+                laboriosam ipsa.</span>
         </div>
     </div>
 </body>
-<script src="../dist/EasePopup.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.0.0/dist/EasePopup.min.js"></script>
 <script>
 
     const btn = document.querySelector(".popup-btn")
@@ -86,8 +79,8 @@
         {
             direction: "bottom",
             needArrow: true,
-            content:"hello",
-            selfClick:false
+            content: "hello",
+            selfClick: false
         }
     )
 
@@ -105,9 +98,9 @@
         {
             direction: "left",
             //container:'.container',
-            width:200,
-            placement:"outside",
-            selfClick:true
+            width: 200,
+            placement: "outside",
+            selfClick: true
         }
     )
 
