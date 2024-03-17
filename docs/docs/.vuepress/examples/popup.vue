@@ -8,8 +8,8 @@
     </div>
 </template>
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
-import EasePopup from 'ease-popup'
+import { ref,toRef, onMounted, onUnmounted } from 'vue'
+//import EasePopup from 'ease-popup'
 const triggers = {
     click: ['click'],
     hover: ['mouseenter', 'mouseleave'],
@@ -59,12 +59,12 @@ export default {
     setup(props,{emit}) {
         let instance
         const popup = ref(null)
+        const open = toRef(instance.popup, 'open')
+        console.log(open)
         const showPopup = () => {
-            emit('update:modelValue', true)
             instance && instance[props.modal ? 'showModal' : 'show']()
         }
         const hidePopup = () => {
-            emit('update:modelValue', false)
             instance && instance.hide()
         }
         onMounted(() => {
@@ -81,15 +81,7 @@ export default {
                 }
             )
             function handleClick() {
-                if (!instance.popup.open) {
-                    showPopup()
-                    emit('update:modelValue', true)
-                } else {
-                    hidePopup()
-                    emit('update:modelValue', false)
-                }
-                
-                //showPopup.value ? instance[props.modal ? 'showModal' : 'show']() : instance.hide()
+                console.log(instance.popup.open)
             }
             triggers[props.trigger].forEach(t => {
                 targetEl.addEventListener(t, handleClick)

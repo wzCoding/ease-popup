@@ -4,7 +4,7 @@
             <input type="text" readonly>
         </div>
         <div class="select-options" ref="popup">
-            <e-popup v-model="visible" direction="bottom-start" :target="target" width="target" :arrow="false" :targetGap="8"
+            <e-popup direction="bottom-start" :target="target" width="target" :arrow="false" :targetGap="8"
                 trigger="click" @update:modelValue="visibleChange">
                 123
             </e-popup>

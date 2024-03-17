@@ -1,7 +1,7 @@
 import { autoUpdate } from '@floating-ui/dom'
 import { popupStyle, popupName } from "./option"
 import {
-    resolveParam,
+    resolveOptions,
     resolveEvent,
     resolveModal,
     updatePosition,
@@ -10,69 +10,60 @@ import {
 
 
 class EasePopup {
-    constructor(target, popup, options) {
+    constructor(options = {}) {
 
-        const resolved = resolveParam([target, popup, options])
-        this.target = resolved.target
-        this.popup = resolved.popup
-        this.options = resolved.options
-        this.popup.classList.add(popupName)
-
-        this.isDialog = this.popup.nodeName === 'DIALOG' //判断是否是dialog元素，dialog元素自带show方法
-
+        this.update(options)
+        this.handleEvent = resolveEvent.bind(this)
+        
         for (const key in popupStyle) {
             addStylesheetRules([popupStyle[key]], popupName)
         }
-
-        this.cleanup = this.update()
-        this.handleEvent = resolveEvent.bind(this)
     }
-    update() {
+    update(options) {
+        this.options = this.options ? resolveOptions(options, this.options) : resolveOptions(options)
         const callback = updatePosition.bind(this)
-        return autoUpdate(this.target, this.popup, callback)
+        
+        if(this.options.popup && this.options.target){
+            this.options.popup.classList.add(popupName)
+            this.cleanup = autoUpdate(this.options.target, this.options.popup, callback)
+        }
     }
-    show(callback) {
-        if (!this.isDialog) this.popup.show()
+    show(callback, isDialog = false) {
+        if (!isDialog) this.options.popup.show()
         if (this.options.singleOpen) {
-            const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.popup)
+            const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.options.popup)
             others.length && others.forEach(item => item.close && item.close())
         }
 
         document.addEventListener('click', this.handleEvent, true)
 
-        callback && callback()
+        callback && typeof callback === 'function' && callback()
     }
     showModal(callback) {
         if (!this.options.fullScreen) {
-            if (!this.isDialog) {
-                this.popup.show()
-                resolveModal({ container: this.options.container, show: true, fullScreen: this.options.fullScreen })
-            } else {
-                this.popup.showModal(this.options.container)
-            }
+            this.options.popup.show()
+            resolveModal({ container:this.options.container, show: true, fullScreen: this.options.fullScreen })
         } else {
-            this.popup.showModal(document.body, this.options.fullScreen)
+            this.options.popup.showModal(this.options.container, this.options.fullScreen)
         }
-        this.show(callback)
-
+        this.show(callback, this.options.popup.nodeName === 'DIALOG')
     }
-    hide(callback) {
-        this.popup.close()
-        resolveModal({ show: false })
+    hide(callback, destroy = false) {
+        this.options.popup.close()
+        resolveModal({ show: false, destroy })
         document.removeEventListener('click', this.handleEvent, true)
-        
-        callback && callback()  
+
+        callback && typeof callback === 'function' && callback()
+
+        if (destroy) this.options.popup.remove()
     }
     destroy(callback) {
         this.cleanup()
-        this.popup.remove()
-        resolveModal({ destroy: true })
-        document.removeEventListener('click', this.handleEvent, true)
+        this.hide(callback, true)
+
         for (let prop in this) {
             this[prop] = null
         }
-
-        callback && callback()
     }
 
 }

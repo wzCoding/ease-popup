@@ -18,10 +18,10 @@ function apply(state) {
     })
 }
 function updatePosition() {
-    const positionOptions = getPositionOptions(this.popup, this.options)
+    const positionOptions = getPositionOptions(this.options)
     computePosition(
-        this.target,
-        this.popup,
+        this.options.target,
+        this.options.popup,
         positionOptions
     ).then((res) => {
         this.options.direction = res.placement
@@ -31,17 +31,17 @@ function updatePosition() {
 
 function updateStyles(data) {
     const zIndex = getzIndex() + 2
-    const { popup, options } = this
+    const { popup, theme,needArrow } = this.options
     const { x, y, placement, middlewareData } = data
     const popupStyles = {
         'left': `${x}px`,
         'top': `${y}px`,
         'z-index': `${zIndex}`,
-        'background-color': `${options.theme.background}`,
-        'color': `${options.theme.color}`,
+        'background-color': `${theme.background}`,
+        'color': `${theme.color}`,
     }
     Object.assign(popup.style, popupStyles)
-    if (options.needArrow) {
+    if (needArrow) {
         const arrow = resolveArrow(popup)
         const { x, y } = middlewareData.arrow
         const side = placement.split('-')[0]
@@ -81,7 +81,7 @@ function insideOffset(options) {
         return result
     }
 }
-function getPositionOptions(popup, options) {
+function getPositionOptions(options) {
     const overflowOptions = {
         boundary: options.container,
         padding: options.boundryGap
@@ -99,7 +99,7 @@ function getPositionOptions(popup, options) {
         ]
     }
     if (options.needArrow) {
-        result.middleware.push(arrow({ element: resolveArrow(popup) }))
+        result.middleware.push(arrow({ element: resolveArrow(options.popup) }))
     }
     return result
 }
@@ -115,38 +115,6 @@ function resolveEl(el) {
 
 function resolveType(value) {
     return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
-}
-
-function resolveParam(params) {
-    let args = [...params]
-    let target, popup, options
-    if (!args.length) {
-        logError('at least "target" parameter is required')
-    }
-    target = resolveEl(args[0])
-    if (!target) {
-        logError('target parameter is invalid')
-    }
-    if (args.length === 1) {
-        options = resolveOption()
-        popup = resolvePopup(popup, options)
-    }
-
-    if (args.length >= 2) {
-        const i = args[2] ? 2 : 1
-        options = resolveOption(resolveType(args[i]) === 'object' ? args[i] : {})
-        popup = resolvePopup(args[1], options)
-    }
-
-    if (options.placement === 'inside') {
-        options.needArrow = false
-        options.container = target
-    }
-    if (target === document.body || options.container === document.body) {
-        options.fullScreen = true
-    }
-
-    return { target, popup, options }
 }
 function resolveArrow(popup) {
     let arrow = popup.querySelector(`.${arrowName}`)
@@ -186,8 +154,8 @@ function resolveModal(options) {
     }
     return modal
 }
-function resolvePopup(popup, options) {
-    popup = resolveEl(popup)
+function resolvePopup(options) {
+    let popup = resolveEl(options.popup)
     if (!popup) {
         popup = document.createElement('dialog')
         if (!popup.show && resolveType(popup.show) !== 'function') {
@@ -234,9 +202,28 @@ function resolvePopup(popup, options) {
     return popup
 }
 
-function resolveOption(options = {}) {
-    const resolved = Object.assign({}, popupOption, options)
+function resolveOptions(newOptions, oldOptions) {
+    if (!oldOptions) oldOptions = popupOption
+    const resolved = Object.assign({}, oldOptions, newOptions)
 
+    resolved.target = resolveEl(resolved.target)
+    resolved.container = resolveEl(resolved.container)
+    
+    if (resolved.placement === 'inside') {
+        resolved.needArrow = false
+        resolved.container = resolved.target
+    }
+
+    if (resolved.target === document.body) {
+        resolved.fullScreen = true
+    }
+
+    if (resolved.theme) {
+        if (popupTheme[resolved.theme]) {
+            resolved.theme = popupTheme[resolved.theme]
+        }
+    }
+    
     if (resolved.width !== 'auto' && isNaN(resolved.width)) {
         logError('the width option is invalid')
     }
@@ -249,30 +236,24 @@ function resolveOption(options = {}) {
     if (!Object.keys(directions).includes(resolved.placement)) {
         logError('the placement option is invalid')
     }
-    if (!resolveEl(resolved.container)) {
+    if (!resolved.container) {
         logError('the container option is invalid')
     }
     if (!directions[resolved.placement].includes(resolved.direction)) {
         logError(`the direction does not comply with the placement option: '${resolved.placement}'`)
     }
-    if (resolved.container) {
-        resolved.container = resolveEl(resolved.container)
-    }
-    if (resolved.theme) {
-        if (popupTheme[resolved.theme]) {
-            resolved.theme = popupTheme[resolved.theme]
-        }
-    }
+
+    resolved.popup = resolvePopup(resolved)
 
     return resolved
 }
 function resolveEvent(event) {
-    if (!this.target.contains(event.target) || this.target === document.body) {
+    if (!this.options.target.contains(event.target) || this.options.target === document.body) {
         //通过点击坐标判断是否是在popup元素自身或是外部，更兼容一些
-        const { x, y, width, height } = this.popup.getBoundingClientRect()
+        const { x, y, width, height } = this.options.popup.getBoundingClientRect()
         const endX = x + width
         const endY = y + height
-        if (this.options.closeByOutSide) {
+        if (this.options.closeByOutSide && this.options.singleOpen) {
             if (event.clientX > endX || event.clientX < x || event.clientY > endY || event.clientY < y) {
                 this.hide()
             }
@@ -339,8 +320,7 @@ export {
     updatePosition,
     getzIndex,
     getPositionOptions,
-    resolveParam,
-    resolveOption,
+    resolveOptions,
     resolveEvent,
     resolveModal,
     addStylesheetRules,

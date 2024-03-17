@@ -35,6 +35,6 @@
     "vuepress": "2.0.0-rc.8"
   },
   "dependencies": {
-    "ease-popup": "^1.0.0"
+    "ease-popup": "^1.0.1"
   }
 }
