@@ -157,8 +157,9 @@ function resolveArrow(popup) {
     }
     return arrow
 }
-function resolveModal(container, show, fullScreen) {
+function resolveModal(options) {
     let modal = resolveEl(`.${modalName}`)
+    const { container, show, fullScreen, destroy } = options
     if (!modal && container) {
         modal = document.createElement('div')
         modal.className = modalName
@@ -181,6 +182,7 @@ function resolveModal(container, show, fullScreen) {
     }
     if (modal) {
         modal.style.display = show ? 'block' : 'none'
+        if (destroy) modal.remove()
     }
     return modal
 }
@@ -210,7 +212,7 @@ function resolvePopup(popup, options) {
             },
             showModal: {
                 value: function (container, fullScreen) {
-                    resolveModal(container, true, fullScreen)
+                    resolveModal({ container, show: true, fullScreen })
                 },
                 writable: false,
                 configurable: false,

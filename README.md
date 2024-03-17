@@ -1,8 +1,8 @@
 # ease-popup
-一个简单、方便、有用的js弹窗插件，基于 `floating-ui` 制作
+一个简单、方便、有用的 JavaScript 弹窗插件，基于 `floating-ui` 制作
 
 ## 介绍
-1. 这是一个简单、方便、好用的js弹窗插件，可以作为tooltip提示框、dialog对话框等使用，也可以在此基础上自由封装改造。
+1. 这是一个简单、方便、好用的 js 弹窗插件，可以作为 tooltip 提示框、dialog 对话框等使用，也可以在此基础上自由封装改造。
 2. 本弹窗插件基于 [floating-ui] 制作，弹窗可选位置齐全，功能相对完善，配置简单。
 3. 弹窗使用 html5 `dialog` 元素生成，也支持使用 `div` 元素，兼容性较好。
 4. 弹窗只提供基础样式，不用引入额外的 CSS 文件，想要其他样式可以自行定义编写。
@@ -15,17 +15,16 @@ npm install ease-popup
 或者也可以使用 `<script>` 标签引入
 
 ```
-<script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.0.0/dist/EasePopup.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.0.1/dist/EasePopup.min.js"></script>
 ```
 
 ## 使用
 ```
-import EasePopup from 'ease-popup';
+import EasePopup from 'ease-popup'
 
 // 或者
 
-const EasePopup = require('ease-popup');
-
+const EasePopup = require('ease-popup')
 ```
 
 ## 示例
@@ -43,18 +42,18 @@ HTML 部分
 JavaScript 部分
 ```js
 
-const btn = document.getElementById('popupBtn');
-const popup = document.querySelector('.ease-popup');
+const btn = document.getElementById('popupBtn')
+const popup = document.querySelector('.ease-popup')
 
 
 const instance = new EasePopup(btn,popup,{
     "direction":"top",
 })
 
-instance.show(); // 显示弹窗
-instance.showmodal(); // 显示弹窗并显示layer层
-instance.hide(); // 隐藏弹窗（隐藏layer层）
-instance.destroy(); // 销毁弹窗
+instance.show() // 显示弹窗
+instance.showmodal() // 显示弹窗并显示layer层
+instance.hide() // 隐藏弹窗（隐藏layer层）
+instance.destroy() // 销毁弹窗
 
 ```
 
