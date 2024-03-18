@@ -8,8 +8,8 @@
     </div>
 </template>
 <script>
-import { ref,toRef, onMounted, onUnmounted } from 'vue'
-//import EasePopup from 'ease-popup'
+import { ref, toRef, onMounted, onUnmounted } from 'vue'
+import EasePopup from 'ease-popup'
 const triggers = {
     click: ['click'],
     hover: ['mouseenter', 'mouseleave'],
@@ -56,11 +56,16 @@ export default {
         }
     },
     emits: ['update:modelValue'],
-    setup(props,{emit}) {
-        let instance
+    setup(props, { emit }) {
+        const popupOptions = {
+            direction: props.direction,
+            needArrow: props.arrow,
+            targetGap: props.targetGap,
+        }
+        const instance = new EasePopup(popupOptions)
+
         const popup = ref(null)
-        const open = toRef(instance.popup, 'open')
-        console.log(open)
+
         const showPopup = () => {
             instance && instance[props.modal ? 'showModal' : 'show']()
         }
@@ -69,17 +74,11 @@ export default {
         }
         onMounted(() => {
             const targetEl = document.querySelector(props.target)
-            const width = props.width === 'target' ? targetEl.clientWidth : props.width
-            instance = new EasePopup(
-                targetEl,
-                popup.value,
-                {
-                    direction: props.direction,
-                    needArrow: props.arrow,
-                    width: width,
-                    targetGap: props.targetGap,
-                }
-            )
+
+            instance.update({ target: targetEl, popup: popup.value })
+            const open = toRef(instance.options.popup, 'open')
+            console.log(open)
+            console.log(instance)
             function handleClick() {
                 console.log(instance.popup.open)
             }

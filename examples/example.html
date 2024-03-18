@@ -60,7 +60,7 @@
             <button class="popup-btn1">click</button>
         </div>
     </div>
-    <dialog class="ease-popup">
+    <div class="ease-popup">
         <div class="popup-content">
             <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque, id repellat. Consequuntur, similique
                 odit quam perspiciatis vero blanditiis eum accusamus ex, ipsum illo reiciendis sint eos possimus? Harum,
@@ -79,7 +79,7 @@
     const instance = new EasePopup({
         target: btn,
         direction: "bottom",
-        container: 'body',
+        container: '.container',
         content: "hello world",
         width: 300,
         placement: "outside",
@@ -92,10 +92,11 @@
         offset: [50, 50],
         singleOpen: false
     })
-
+    console.log(instance)
+    instance.update({popup:document.createElement("div")})
     btn.addEventListener("click", () => {
 
-        if (instance.open) {
+        if (instance.options.popup.open) {
 
             instance.hide()
             // instance1.destroy()
@@ -104,6 +105,8 @@
         }
         console.log(instance)
     })
+
+
 
     const instance1 = new EasePopup(
         {

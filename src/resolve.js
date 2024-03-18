@@ -25,13 +25,13 @@ function updatePosition() {
         positionOptions
     ).then((res) => {
         this.options.direction = res.placement
-        updateStyles.call(this, res)
+        updateStyles(this.options, res)
     });
 }
 
-function updateStyles(data) {
+function updateStyles(options, data) {
     const zIndex = getzIndex() + 2
-    const { popup, theme,needArrow } = this.options
+    const { popup, theme, needArrow } = options
     const { x, y, placement, middlewareData } = data
     const popupStyles = {
         'left': `${x}px`,
@@ -103,7 +103,15 @@ function getPositionOptions(options) {
     }
     return result
 }
-
+function checkPopup(options) {
+    const { container, target, popup } = options
+    if (!container.contains(target)) {
+        console.warn('the target element is outside the container，popup will be hidden')
+    }
+    if (!container.contains(popup)) {
+        container.appendChild(popup)
+    }
+}
 function resolveEl(el) {
     let result
     if (resolveType(el) === "string") {
@@ -112,7 +120,6 @@ function resolveEl(el) {
     if (resolveType(el).includes("element")) result = el
     return result
 }
-
 function resolveType(value) {
     return Object.prototype.toString.call(value).replace('object ', "").match(/\w+/g)[0].toLowerCase();
 }
@@ -161,7 +168,6 @@ function resolvePopup(options) {
         if (!popup.show && resolveType(popup.show) !== 'function') {
             popup = document.createElement('div')
         }
-        options.container.appendChild(popup)
     }
     if (!popup.show && resolveType(popup.show) !== 'function') {
         const configs = {
@@ -196,19 +202,20 @@ function resolvePopup(options) {
         }
         Object.defineProperties(popup, configs)
     }
-    popup.className += ` ${popupName} ${popupName}-${document.getElementsByClassName(popupName).length}`
+    const className = popup.className.split(' ')
+    if (!className.includes(popupName)) className.push(popupName)
+    popup.className = className.join(' ').trim()
     if (options.content) popup.innerHTML = `<div class='${popupName}-content'>${options.content}</div>`
     if (options.width) popup.style.width = `${options.width}px`
     return popup
 }
-
 function resolveOptions(newOptions, oldOptions) {
     if (!oldOptions) oldOptions = popupOption
     const resolved = Object.assign({}, oldOptions, newOptions)
 
     resolved.target = resolveEl(resolved.target)
     resolved.container = resolveEl(resolved.container)
-    
+
     if (resolved.placement === 'inside') {
         resolved.needArrow = false
         resolved.container = resolved.target
@@ -223,7 +230,10 @@ function resolveOptions(newOptions, oldOptions) {
             resolved.theme = popupTheme[resolved.theme]
         }
     }
-    
+
+    if (!resolved.target) {
+        logError('target parameter is required')
+    }
     if (resolved.width !== 'auto' && isNaN(resolved.width)) {
         logError('the width option is invalid')
     }
@@ -244,7 +254,6 @@ function resolveOptions(newOptions, oldOptions) {
     }
 
     resolved.popup = resolvePopup(resolved)
-
     return resolved
 }
 function resolveEvent(event) {
@@ -320,8 +329,11 @@ export {
     updatePosition,
     getzIndex,
     getPositionOptions,
+    checkPopup,
     resolveOptions,
+    resolvePopup,
     resolveEvent,
     resolveModal,
+    resolveEl,
     addStylesheetRules,
 }

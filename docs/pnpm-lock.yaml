@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   ease-popup:
-    specifier: ^1.0.1
-    version: 1.0.1
+    specifier: ^1.0.2
+    version: 1.0.2
 
 devDependencies:
   '@vuepress/bundler-vite':
@@ -563,7 +563,7 @@ packages:
       '@vue/shared': 3.4.21
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.0.2
+      source-map-js: 1.0.3
     dev: true
 
   /@vue/compiler-dom@3.4.21:
@@ -584,7 +584,7 @@ packages:
       estree-walker: 2.0.2
       magic-string: 0.30.8
       postcss: 8.4.35
-      source-map-js: 1.0.2
+      source-map-js: 1.0.3
     dev: true
 
   /@vue/compiler-ssr@3.4.21:
@@ -1194,8 +1194,8 @@ packages:
       domhandler: 5.0.3
     dev: true
 
-  /ease-popup@1.0.1:
-    resolution: {integrity: sha512-RrmTTySHReK6U/WvMjSXV7JWTTRvSkThI0oUAlqhBA8c2X+Ej56qusriSRpH6PqJYKmkib4bQz8z9R6lgkpvZA==}
+  /ease-popup@1.0.2:
+    resolution: {integrity: sha512-urFZ9Ku43dAb2EOoQcNK0DjPMhVyU8AutcvTBAPiVSEHsHPpotEJ7FlJuI8ksTVjg3fL4cmcarKbPW5PTKcpvA==}
     dependencies:
       '@floating-ui/dom': 1.6.3
       core-js: 3.36.0
@@ -1702,7 +1702,7 @@ packages:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.0.0
-      source-map-js: 1.0.2
+      source-map-js: 1.0.3
     dev: true
 
   /prismjs@1.29.0:
@@ -1775,7 +1775,7 @@ packages:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.5
-      source-map-js: 1.0.2
+      source-map-js: 1.0.3
     dev: true
 
   /sax@1.3.0:
@@ -1827,8 +1827,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /source-map-js@1.0.2:
-    resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
+  /source-map-js@1.0.3:
+    resolution: {integrity: sha512-H/5Vyeo/I1hqIdOS0m1Q63OPr0yFdZLaiVkr8ap/WyIVGdU3PyoOV/HXY8+PJE2M43+n11FY5zWQnNRNnD1UFg==}
     engines: {node: '>=0.10.0'}
     dev: true
 

@@ -1,7 +1,7 @@
 /**
  * popupOption对象，用于配置popup组件的选项。
  * @property {(object|string)} target -触发popup弹窗的元素，或者弹窗容器元素，默认值为 null，可取值为一个选择器字符串或者一个dom元素。
- * @property {(object|string)} popup -弹窗元素，默认值为 null，可取值为一个选择器字符串或者一个dom元素。
+ * @property {(object|string)} popup -弹窗元素，默认值为 null ，可取值为一个选择器字符串或者一个dom元素。
  * @property {string} direction - popup显示的方向，默认值为 'bottom'，可取值为：'top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end','left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'。
  * @property {string} width - popup的宽度设置，默认值为 'auto'，可取值为：一个数字值、一个字符串值、'auto'
  * @property {string} content - popup中要显示的内容，默认值为 ''
