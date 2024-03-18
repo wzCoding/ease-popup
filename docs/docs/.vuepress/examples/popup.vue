@@ -75,16 +75,16 @@ export default {
         onMounted(() => {
             const targetEl = document.querySelector(props.target)
 
-            instance.update({ target: targetEl, popup: popup.value })
-            const open = toRef(instance.options.popup, 'open')
-            console.log(open)
-            console.log(instance)
-            function handleClick() {
-                console.log(instance.popup.open)
-            }
-            triggers[props.trigger].forEach(t => {
-                targetEl.addEventListener(t, handleClick)
-            });
+            //instance.update({ target: targetEl, popup: popup.value })
+            // const open = toRef(instance.options.popup, 'open')
+            // console.log(open)
+            // console.log(instance)
+            // function handleClick() {
+            //     console.log(instance.popup.open)
+            // }
+            // triggers[props.trigger].forEach(t => {
+            //     targetEl.addEventListener(t, handleClick)
+            // });
         })
         onUnmounted(() => {
             instance.destroy()

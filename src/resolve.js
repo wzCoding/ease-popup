@@ -105,6 +105,12 @@ function getPositionOptions(options) {
 }
 function checkPopup(options) {
     const { container, target, popup } = options
+    if (!target) {
+        logError('the target option is required')
+    }
+    if (!container) {
+        logError('the container option is invalid')
+    }
     if (!container.contains(target)) {
         console.warn('the target element is outside the container，popup will be hidden')
     }
@@ -231,9 +237,6 @@ function resolveOptions(newOptions, oldOptions) {
         }
     }
 
-    if (!resolved.target) {
-        logError('target parameter is required')
-    }
     if (resolved.width !== 'auto' && isNaN(resolved.width)) {
         logError('the width option is invalid')
     }
@@ -245,9 +248,6 @@ function resolveOptions(newOptions, oldOptions) {
     }
     if (!Object.keys(directions).includes(resolved.placement)) {
         logError('the placement option is invalid')
-    }
-    if (!resolved.container) {
-        logError('the container option is invalid')
     }
     if (!directions[resolved.placement].includes(resolved.direction)) {
         logError(`the direction does not comply with the placement option: '${resolved.placement}'`)
