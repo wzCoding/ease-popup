@@ -3,6 +3,7 @@ import { defaultTheme } from '@vuepress/theme-default'
 import { defineUserConfig } from 'vuepress'
 import { getDirname, path } from 'vuepress/utils'
 import { sidebar,navbar } from './bar'
+
 export default defineUserConfig({
     bundler: viteBundler(),
     theme: defaultTheme({

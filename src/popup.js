@@ -3,9 +3,7 @@ import { popupStyle, popupName } from "./option"
 import {
     resolveOptions,
     resolveEvent,
-    resolveModal,
     updatePosition,
-    resolveEl,
     checkPopup,
     addStylesheetRules,
 } from "./resolve"
@@ -13,7 +11,7 @@ import {
 class EasePopup {
     constructor(options = {}) {
         this.update(options)
-        this.handleEvent = resolveEvent.bind(this)
+        this.handleClick = resolveEvent.bind(this)
 
         for (const key in popupStyle) {
             addStylesheetRules([popupStyle[key]], popupName)
@@ -22,48 +20,36 @@ class EasePopup {
     update(options) {
         this.options = this.options ? resolveOptions(options, this.options) : resolveOptions(options)
         const callback = updatePosition.bind(this)
-
-        if (this.options.popup && this.options.target) {
+        if(this.options.popup && this.options.target){
             this.cleanup = autoUpdate(this.options.target, this.options.popup, callback)
         }
     }
-    show(callback, isDialog = false) {
+    show(isDialog = false) {
         checkPopup(this.options)
         if (!isDialog) {
-            this.options.popup.show()
+            this.options.popup.showPopup()
         }
         if (this.options.singleOpen) {
             const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.options.popup)
-            others.length && others.forEach(item => item.close && item.close())
+            others.length && others.forEach(item => item.hidePopup && item.hidePopup())
         }
 
-        document.addEventListener('click', this.handleEvent, true)
-
-        callback && typeof callback === 'function' && callback()
+        document.addEventListener('click', this.handleClick, true)
     }
-    showModal(callback) {
-        if (!this.options.fullScreen) {
-            this.options.popup.show()
-            resolveModal({ container: this.options.container, show: true, fullScreen: this.options.fullScreen })
-        } else {
-            this.options.popup.showModal(this.options.container, this.options.fullScreen)
-        }
-        this.show(callback, this.options.popup.nodeName === 'DIALOG')
+    showModal() {
+        this.show(this.options.popup.nodeName === 'DIALOG')
+        this.options.popup.showPopupModal(this.options.container, this.options.fullScreen)
     }
-    hide(callback, destroy = false) {
+    hide() {
         checkPopup(this.options)
-        this.options.popup.close()
-        resolveModal({ show: false, destroy })
-        document.removeEventListener('click', this.handleEvent, true)
-
-        callback && typeof callback === 'function' && callback()
-
-        if (destroy) this.options.popup.remove()
+        this.options.popup.hidePopup()
+        document.removeEventListener('click', this.handleClick, true)
     }
-    destroy(callback) {
+    destroy() {
         this.cleanup()
-        this.hide(callback, true)
-
+        document.removeEventListener('click', this.handleClick, true)
+        this.options.popup.remove()
+        this.options.onDestroy && this.options.onDestroy()
         for (let prop in this) {
             this[prop] = null
         }

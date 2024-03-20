@@ -16,6 +16,8 @@
  * @property {(number|string)} boundryGap - popup与容器边缘的间距，默认值为 5px，可取值为：一个数字值、一个字符串值。
  * @property {number[]} offset - popup的偏移量，相对于所在方向的便宜了，默认值为[x = 0, y = 0]。
  * @property {(object|string)} theme - popup的主题，默认值为'light'，可取值为'light'，'dark'，自定义的theme对象{background:'',color:''}。
+ * @property {function} onShow - popup在打开时执行的回调方法
+ * @property {function} onHide - popup在关闭时执行的回调方法
  */
 
 const popupOption = {
@@ -67,6 +69,15 @@ const popupOption = {
 
     //popup的主题（文字颜色与背景色）
     theme: 'light',
+
+    //popup打开时执行的回调
+    onShow: function () { },
+
+    //popup关闭时执行的回调
+    onHide: function () { },
+
+    //popup销毁时执行的回调
+    onDestroy: function () { },
 
 }
 const popupName = 'ease-popup'

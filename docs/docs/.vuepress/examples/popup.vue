@@ -1,20 +1,15 @@
 <template>
-    <div class="popup-example">
+    <Teleport to="body">
         <dialog class="ease-popup" ref="popup">
             <slot>
                 <div class="ease-popup-content">这是一个弹窗</div>
             </slot>
         </dialog>
-    </div>
+    </Teleport>
 </template>
 <script>
-import { ref, toRef, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, reactive } from 'vue'
 import EasePopup from 'ease-popup'
-const triggers = {
-    click: ['click'],
-    hover: ['mouseenter', 'mouseleave'],
-    focus: ['focus', 'blur'],
-}
 export default {
     name: 'EPopup',
     props: {
@@ -22,73 +17,38 @@ export default {
             type: Boolean,
             default: false
         },
-        target: {
-            type: [String, Object],
-            default: ''
-        },
-        trigger: {
-            type: String,
-            default: 'click'
-        },
-        direction: {
-            type: String,
-            default: 'bottom'
-        },
-        arrow: {
-            type: Boolean,
-            default: true
-        },
-        targetGap: {
-            type: [Number, String],
-            default: 15,
-        },
-        modal: {
-            type: Boolean,
-            default: false
-        },
-        width: {
-            type: [Number, String],
-            default: 'auto'
-        },
-        content: {
-            type: [String, Array],
-            default: ''
+        options: {
+            type: Object,
+            default: () => {
+                return {
+                    target: null,
+                    direction: 'bottom',
+                    arrow: true,
+                    targetGap: 15,
+                    modal: false,
+                    width: 'auto',
+                    content: '',
+                    container: null,
+                }
+            }
         }
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
-        const popupOptions = {
-            direction: props.direction,
-            needArrow: props.arrow,
-            targetGap: props.targetGap,
-        }
-        const instance = new EasePopup(popupOptions)
-
         const popup = ref(null)
-
-        const showPopup = () => {
-            instance && instance[props.modal ? 'showModal' : 'show']()
-        }
-        const hidePopup = () => {
-            instance && instance.hide()
-        }
+        const popupOptions = reactive(props.options)
+        let instance = new EasePopup(popupOptions)
         onMounted(() => {
-            const targetEl = document.querySelector(props.target)
-
-            //instance.update({ target: targetEl, popup: popup.value })
-            // const open = toRef(instance.options.popup, 'open')
-            // console.log(open)
-            // console.log(instance)
-            // function handleClick() {
-            //     console.log(instance.popup.open)
-            // }
-            // triggers[props.trigger].forEach(t => {
-            //     targetEl.addEventListener(t, handleClick)
-            // });
+            instance.update({ target: popupOptions.target, popup: popup.value, container: popupOptions.container })
+        })
+        const clean = watch(() => props.modelValue, (val) => {
+            instance.options.popup.visible ? instance.hide() : instance.show()
+            emit('update:modelValue', val)
         })
         onUnmounted(() => {
             instance.destroy()
             instance = null
+            clean()
         })
         return {
             popup
@@ -96,4 +56,3 @@ export default {
     }
 }
 </script>
-<style scoped></style>

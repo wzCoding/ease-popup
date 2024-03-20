@@ -30,7 +30,7 @@ function updatePosition() {
 }
 
 function updateStyles(options, data) {
-    const zIndex = getzIndex() + 2
+    const zIndex = getzIndex(options.popup)
     const { popup, theme, needArrow } = options
     const { x, y, placement, middlewareData } = data
     const popupStyles = {
@@ -59,11 +59,13 @@ function updateStyles(options, data) {
     popup.style.visibility = middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
 }
 
-function getzIndex() {
-    const result = [...document.querySelectorAll('*')].map(
+function getzIndex(popup) {
+    const list = [...document.querySelectorAll('*')].filter(
         el => getComputedStyle(el).zIndex !== 'auto'
-    )
-    return result.length > 0 ? Math.max(...result) + 1 : 0
+    ).map(el => getComputedStyle(el).zIndex)
+    const max = list.length > 0 ? Math.max(...list) : 0
+    const self = getComputedStyle(popup).zIndex == 'auto' ? 0 : getComputedStyle(popup).zIndex
+    return max > self ? max + 2 : self
 }
 function insideOffset(options) {
     const { direction, width, offset } = options
@@ -106,16 +108,16 @@ function getPositionOptions(options) {
 function checkPopup(options) {
     const { container, target, popup } = options
     if (!target) {
-        logError('the target option is required')
+        console.error('the target option is required')
     }
     if (!container) {
-        logError('the container option is invalid')
+        console.error('the container option is invalid')
     }
     if (!container.contains(target)) {
         console.warn('the target element is outside the container，popup will be hidden')
     }
-    if (!container.contains(popup)) {
-        container.appendChild(popup)
+    if (!container.contains(popup) && !document.body.contains(popup)) {
+        document.body.appendChild(popup)
     }
 }
 function resolveEl(el) {
@@ -144,7 +146,7 @@ function resolveModal(options) {
     if (!modal && container) {
         modal = document.createElement('div')
         modal.className = modalName
-        modal.style.zIndex = getzIndex() + 1
+        modal.style.zIndex = getzIndex(options.popup) - 1
         modal.style.position = 'fixed'
         modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
         document.body.appendChild(modal)
@@ -171,36 +173,50 @@ function resolvePopup(options) {
     let popup = resolveEl(options.popup)
     if (!popup) {
         popup = document.createElement('dialog')
-        if (!popup.show && resolveType(popup.show) !== 'function') {
-            popup = document.createElement('div')
-        }
     }
-    if (!popup.show && resolveType(popup.show) !== 'function') {
+    if (!popup.showPopup && typeof popup.showPopup !== 'function') {
         const configs = {
-            open: {
+            visible: {
                 value: false,
                 writable: true,
                 configurable: false,
             },
-            show: {
+            showPopup: {
                 value: function () {
-                    this.open = true
-                    this.style.display = 'block'
+                    this.visible = true
+                    if (this.nodeName === 'DIALOG') {
+                        this.show()
+                    } else {
+                        this.style.display = 'block'
+                    }
+                    options.onShow && options.onShow()
                 },
                 writable: false,
                 configurable: false,
             },
-            showModal: {
+            showPopupModal: {
                 value: function (container, fullScreen) {
-                    resolveModal({ container, show: true, fullScreen })
+                    this.visible = true
+                    if (this.nodeName === 'DIALOG') {
+                        this.showModal()
+                        options.onShow && options.onShow()
+                    } else {
+                        resolveModal({ container, show: true, fullScreen })
+                    }
                 },
                 writable: false,
                 configurable: false,
             },
-            close: {
-                value: function () {
-                    this.open = false
-                    this.style.display = 'none'
+            hidePopup: {
+                value: function (destroy) {
+                    this.visible = false
+                    if (this.nodeName === 'DIALOG') {
+                        this.close()
+                    } else {
+                        this.style.display = 'none'
+                        resolveModal({ show: false, destroy })
+                    }
+                    options.onHide && options.onHide()
                 },
                 writable: false,
                 configurable: false,
@@ -238,31 +254,39 @@ function resolveOptions(newOptions, oldOptions) {
     }
 
     if (resolved.width !== 'auto' && isNaN(resolved.width)) {
-        logError('the width option is invalid')
+        console.error('the width option is invalid')
     }
     if (isNaN(resolved.targetGap)) {
-        logError('the targetGap option is invalid')
+        console.error('the targetGap option is invalid')
     }
     if (isNaN(resolved.boundryGap)) {
-        logError('the boundryGap option is invalid')
+        console.error('the boundryGap option is invalid')
     }
     if (!Object.keys(directions).includes(resolved.placement)) {
-        logError('the placement option is invalid')
+        console.error('the placement option is invalid')
     }
     if (!directions[resolved.placement].includes(resolved.direction)) {
-        logError(`the direction does not comply with the placement option: '${resolved.placement}'`)
+        console.error(`the direction does not comply with the placement option: '${resolved.placement}'`)
     }
-
+    if (resolved.onShow && typeof resolved.onShow !== 'function') {
+        console.error('the onShow option is invalid')
+    }
+    if (resolved.onHide && typeof resolved.onHide !== 'function') {
+        console.error('the onHide option is invalid')
+    }
+    if (resolved.onDestroy && typeof resolved.onDestroy !== 'function') {
+        console.error('the onDestroy option is invalid')
+    }
     resolved.popup = resolvePopup(resolved)
     return resolved
 }
 function resolveEvent(event) {
     if (!this.options.target.contains(event.target) || this.options.target === document.body) {
-        //通过点击坐标判断是否是在popup元素自身或是外部，更兼容一些
+        //通过点击坐标判断是否是在popup元素自身或是外部
         const { x, y, width, height } = this.options.popup.getBoundingClientRect()
         const endX = x + width
         const endY = y + height
-        if (this.options.closeByOutSide && this.options.singleOpen) {
+        if (this.options.closeByOutSide) {
             if (event.clientX > endX || event.clientX < x || event.clientY > endY || event.clientY < y) {
                 this.hide()
             }
@@ -273,9 +297,6 @@ function resolveEvent(event) {
             }
         }
     }
-}
-function logError(errorInfo) {
-    throw new Error(errorInfo)
 }
 //I found this function on MDN and made some modifications 
 //to support adding styles using a single <style> tag
@@ -324,16 +345,9 @@ function addStylesheetRules(rules, id) {
 
 }
 export {
-    preventOverflow,
-    apply,
     updatePosition,
-    getzIndex,
-    getPositionOptions,
     checkPopup,
     resolveOptions,
-    resolvePopup,
     resolveEvent,
-    resolveModal,
-    resolveEl,
     addStylesheetRules,
 }

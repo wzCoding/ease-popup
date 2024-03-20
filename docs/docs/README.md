@@ -53,67 +53,61 @@ pnpm install ease-popup
 # 使用
 
 当插件被引入到项目中后，就可以在项目中使用 `EasePopup` 类来创建弹窗了。
+
+### 创建实例
 ```js
 import EasePopup from 'ease-popup'
 //或者
 const EasePopup = require('ease-popup')
 ```
 
-### 创建实例
-弹窗插件通过 `EasePopup` 类来创建实例。
 ```js
-const instance = new EasePopup(
-    target, // 弹窗触发元素
-    popup, // 弹窗元素
-    options // options 配置
-)
+const options = {......}
+const instance = new EasePopup(options)
 ```
 创建弹窗实例后，可以通过弹窗实例中提供的方法来控制弹窗：
-
+- `instance.update()`  更新弹窗配置选项
 - `instance.show()`  显示弹窗
 - `instance.showModal()`  显示弹窗并显示 layer 层
 - `instance.hide()`  隐藏弹窗（隐藏 layer 层）
 - `instance.destroy()`  销毁弹窗实例
 
-#### 示例
-```html
-<button class='popup-btn'>打开弹窗</button>
-<dialog class='ease-popup'>
-  <p class='ease-popup-content'>这是一个弹窗</p>
-</dialog>
-```
-```js
-const target = document.getElementByClassName('popup-btn')[0]
-const popup = document.getElementByClassName('ease-popup')[0]
-const instance = new EasePopup(
-    target,  // 弹窗触发元素
-    popup, // 弹窗元素
-    {
-        direction:'left'  // options 配置
-    }
-)
+### 示例演示
 
-target.addEventListener('click', () => {
-    instance.popup.open ? instance.hide() : instance.show()
-})
-```
-<example direction='right'></example>
-
-
-### 参数说明
-上面的示例代码简单演示了弹窗插件的用法，在使用 `EasePopup` 类创建实例时，需要传入三个参数：
-- `target`：（**必需**）弹窗触发元素，可以是页面上的 `dom` 元素，也可以是一个有效的选择器。
   
-- `popup`：（可选）弹窗元素，可以是页面上的 `dom` 元素，比如 `<dialog>`、`<div>` 等，也可以是一个有效的选择。如果不传递此参数，插件会自动创建一个 `<dialog>` 元素到页面上。
-  
-- `options`：（可选）弹窗配置项，可以配置弹窗的显示位置、宽度等。如果不传递此参数，插件会使用默认的 `options` 配置。
-
 以上介绍是弹窗插件的基本用法，如果想要更加灵活的控制弹窗插件，需要配合 `options` 选项一起使用。
 
-# options 配置
-使用 `options` 选项可以更加灵活的控制弹窗插件，比如：将弹窗设置在目标元素上方作为 tooltip 提示使用，或者将弹窗设置在目标元素内部作为 message 消息使用。
+# 配置选项
+使用 `options` 配置选项可以更加灵活的控制弹窗插件，比如：将弹窗设置在目标元素上方作为 tooltip 提示使用，或者将弹窗设置在目标元素内部作为 message 消息使用。
 
 下面开始介绍 `options` 配置项：
+
+### target
+* 类型：`String | Object`
+  
+* 默认值：`null`
+  
+* 说明：设置弹窗的触发元素，可以是页面上的 `dom` 元素，也可以是一个有效的选择器。
+  
+### popup
+* 类型：`String | Object`
+  
+* 默认值：`null`
+  
+* 说明：设置弹窗元素，可以是页面上的 `dom` 元素，比如 `<dialog>`、`<div>` 等，也可以是一个有效的选择器。
+
+### container
+* 类型：`String | Object`
+  
+* 默认值：`document.body`
+
+* 说明：设置弹窗的容器元素，，可以是页面上的 `dom` 元素，也可以是一个有效的选择器，按照以下规则取值：
+  
+    * 当 `placement` 选项的值为 **outside** 时，设置 `container` 属性可以限制弹窗边界，防止弹窗溢出容器之外，默认值是 `body`。
+      
+    * 当 `placement` 选项的值为 **inside** 时，这个选项是可选的，此时会将 `target` 视作 `container`。
+
+
 
 ### direction
 * 类型：`String`
@@ -126,7 +120,118 @@ target.addEventListener('click', () => {
   
     *  当 `placement` 选项的值为 **inside** 时，可取值有：`'left'`、`'left-start'`、`'left-end'`、`'right'`、`'right-start'`、`'right-end'`、`'center'`、`'center-start'`、`'center-end'`。
 
+### placement
+* 类型：`String`
 
-<e-select></e-select>
+* 默认值：`'outside'`
+
+* 说明：设置弹窗在目标元素的内部或外部，按照以下规则取值：
+   
+    * 当想要将弹窗的位置显示在触发元素（目标元素）外部时，可以将此选项的值设置为 **outside**。
+   
+    * 当想要将弹窗的位置显示在触发元素（容器元素）内部时，可以将此选项的值设置为 **inside**。
+
+### width
+* 类型：`Number | String`
+
+* 默认值：`'auto'`
+
+* 说明：设置弹窗的宽度。
+
+### content
+* 类型：`String`
+
+* 默认值：`' '`
+
+* 说明：设置弹窗的内容，可以是 `String` 类型的文本，也可以是一段安全的 `html` 字符内容，这个选项当在页面上没有作为 `popup` 的元素存在，由插件自动创建 `popup` 时会很有用。
+
+### theme
+* 类型：`String | Object`
+
+* 默认值：`'light'`
+
+* 说明：设置弹窗的主题，插件默认提供了 **light** 与 **dark** 两种主题，也可以传入自定义的主题颜色配置，格式为：`{ background:'xxx', color:'xxx' }`
+
+### targetGap
+
+* 类型：`Number`
+
+* 默认值：`15(px)`
+
+* 说明：设置弹窗与目标元素之间的间距，当 `placement` 选项的值为 **outside** 时会很有用。
+
+### boundryGap
+* 类型：`Number`
+
+* 默认值：`5(px)`
+
+* 说明：设置弹窗在要溢出容器边界时的安全间距。
+
+### offset
+* 类型：`Array`
+
+* 默认值：`[0, 0]`
+
+* 说明：设置弹窗在目标元素上的偏移量，取值方式为：`[x,y]`，`x` 代表水平位置的偏移量，`y` 代表垂直位置的偏移量。
+
+### needArrow
+* 类型：`Boolean`
+
+* 默认值：`true`
+
+* 说明：设置弹窗是否需要箭头，当 `placement` 选项的值为 **inside** 时，此选项的值会变成 `false`。
+
+### selfClick
+* 类型：`Boolean`
+
+* 默认值：`true`
+
+* 说明：设置弹窗是否可以点击自身，当此选项被设置为 `false` 时，点击弹窗自身弹窗将会关闭。
+
+### closeByOutSide
+* 类型：`Boolean`
+
+* 默认值：`true`
+
+* 说明：设置弹窗是否在点击自身以外的区域时关闭，当此选项被设置为 `false` 时，点击外部区域不会关闭弹窗。
+
+### singleOpen
+* 类型：`Boolean`
+
+* 默认值：`true`
+
+* 说明：设置弹窗是否只能同时打开一个，当此选项被设置为 `false` 时，可以同时打开多个弹窗。
+
+### fullScreen
+* 类型：`Boolean`
+
+* 默认值：`false`
+
+* 说明：设置弹窗的 `layer` 层是否全屏显示，当此选项被设置为 `true` 时，`layer` 层将会占满整个屏幕，此选项在 调用 `showModal` 方法时会很有用。
+
+### onShow
+* 类型：`Function`
+
+* 默认值：`null`
+
+* 说明：弹窗显示时的回调函数，此回调函数会在弹窗显示后执行。
+
+### onHide
+* 类型：`Function`
+
+* 默认值：`null`
+
+* 说明：弹窗隐藏时的回调函数，此回调函数会在弹窗隐藏后执行。
+
+### onDestroy
+* 类型：`Function`
+
+* 默认值：`null`
+
+* 说明：弹窗销毁时的回调函数，此回调函数会在弹窗销毁后执行。
+
+
+<example></example>
+
 
 [floating-ui]:https://floating-ui.com/
