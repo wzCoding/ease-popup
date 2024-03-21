@@ -33,6 +33,7 @@ function updateStyles(options, data) {
     const zIndex = getzIndex(options.popup)
     const { popup, theme, needArrow } = options
     const { x, y, placement, middlewareData } = data
+    const arrow = resolveArrow(popup)
     const popupStyles = {
         'left': `${x}px`,
         'top': `${y}px`,
@@ -42,7 +43,6 @@ function updateStyles(options, data) {
     }
     Object.assign(popup.style, popupStyles)
     if (needArrow) {
-        const arrow = resolveArrow(popup)
         const { x, y } = middlewareData.arrow
         const side = placement.split('-')[0]
         const staticSide = arrowOption.side[side];
@@ -55,6 +55,8 @@ function updateStyles(options, data) {
             [staticSide]: '-5px'
         }
         Object.assign(arrow.style, arrowStyles)
+    } else {
+        Object.assign(arrow.style, { display: 'none' })
     }
     popup.style.visibility = middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
 }
@@ -281,7 +283,7 @@ function resolveOptions(newOptions, oldOptions) {
     return resolved
 }
 function resolveEvent(event) {
-    if (!this.options.target.contains(event.target) || this.options.target === document.body) {
+    if (!this.options.target.contains(event.target) || this.options.target === document.body || this.options.target === this.options.container) {
         //通过点击坐标判断是否是在popup元素自身或是外部
         const { x, y, width, height } = this.options.popup.getBoundingClientRect()
         const endX = x + width

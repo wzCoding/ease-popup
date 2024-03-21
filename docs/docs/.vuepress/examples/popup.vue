@@ -1,21 +1,27 @@
 <template>
     <Teleport to="body">
-        <dialog class="ease-popup" ref="popup">
-            <slot>
-                <div class="ease-popup-content">这是一个弹窗</div>
-            </slot>
-        </dialog>
+        <transition name="fade">
+            <dialog v-show="show" class="ease-popup" :class="className" ref="popup">
+                <slot>
+                    <div class="ease-popup-content">这是一个弹窗</div>
+                </slot>
+            </dialog>
+        </transition>
     </Teleport>
 </template>
 <script>
-import { ref, watch, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, toRef, watch, onMounted, onUnmounted, reactive } from 'vue'
 import EasePopup from 'ease-popup'
 export default {
     name: 'EPopup',
     props: {
-        modelValue: {
+        visible: {
             type: Boolean,
             default: false
+        },
+        name: {
+            type: String,
+            default: ''
         },
         options: {
             type: Object,
@@ -23,12 +29,12 @@ export default {
                 return {
                     target: null,
                     direction: 'bottom',
-                    arrow: true,
+                    needArrow: true,
                     targetGap: 15,
                     modal: false,
                     width: 'auto',
                     content: '',
-                    container: null,
+                    container: 'body',
                 }
             }
         }
@@ -36,23 +42,44 @@ export default {
     emits: ['update:modelValue'],
     setup(props, { emit }) {
         const popup = ref(null)
+        const className = props.name ? `${props.name}-popup` : ''
         const popupOptions = reactive(props.options)
         let instance = new EasePopup(popupOptions)
+        const show = ref(props.visible)
         onMounted(() => {
             instance.update({ target: popupOptions.target, popup: popup.value, container: popupOptions.container })
         })
-        const clean = watch(() => props.modelValue, (val) => {
-            instance.options.popup.visible ? instance.hide() : instance.show()
-            emit('update:modelValue', val)
+        const cleanOptions = watch(() => props.options, (val) => {
+            instance.update(val)
+        }, { deep: true })
+        const cleanModelValue = watch(() => props.visible, () => {
+            instance.options.popup.visible ? instance.hide() : instance[props.options.modal ? 'showModal' : 'show']() 
+            show.value = instance.options.popup.visible
+            emit('update:modelValue', instance.options.popup.visible)
         })
+        
         onUnmounted(() => {
+            cleanOptions()
+            cleanModelValue()
             instance.destroy()
             instance = null
-            clean()
         })
         return {
-            popup
+            popup,
+            className,
+            show
         }
     }
 }
 </script>
+<style>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

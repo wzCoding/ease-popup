@@ -33,7 +33,7 @@
 
     .container {
         width: 600px;
-        height: 1500px;
+        height: 600px;
         border: 1px solid #000;
         overflow: auto;
         position: relative;
@@ -80,12 +80,12 @@
     const btn1 = document.querySelector(".popup-btn1")
     const dialog = document.querySelector(".ease-popup")
     const instance = new EasePopup({
-        target: btn,
-        direction: "bottom",
-        container: 'body',
+        target: '.container',
+        direction: "center",
+        container: '.container',
         content: "hello world",
         width: 300,
-        placement: "outside",
+        placement: "inside",
         selfClick: true,
         fullScreen: false,
         boundryGap: 10,
@@ -123,8 +123,8 @@
 
     const instance1 = new EasePopup(
         {
-            target: btn1,
-            direction: "left",
+            target: '.container',
+            direction: "top",
             container: 'container',
             width: 200,
             placement: "outside",
@@ -135,11 +135,10 @@
             closeByOutSide: true,
             needArrow: true,
             offset: [0, 0],
-            placement: 'outside',
             singleOpen: true
         }
     )
-    instance1.update({ target: btn1, popup: dialog })
+    instance1.update({ target: '.container', popup: dialog })
     const open = toRef(instance1.options.popup, 'visible')
 
     btn1.addEventListener("click", () => {

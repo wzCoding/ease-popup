@@ -1,31 +1,28 @@
 <template>
     <div class="example">
-        <!-- <form class="form-area">
-            <div class="select-item" v-for="option in formOptions" :key="option.label">
-                <span>{{ option.label }}:</span>
-                <e-select :value="formValues[option.label]" :name="option.label" :options="option.options"
-                    @change="onChange"></e-select>
+        <form class="form-area">
+            <div class="select-area">
+                <div class="select-item" v-for="option in formOptions" :key="option.name">
+                    <span>{{ option.name }}:</span>
+                    <e-select :value="formValues[option.name]" :name="option.name" :options="option.options"
+                        @change="onChange"></e-select>
+                </div>
             </div>
+            <div class="tip">注：示例中所展示的下拉框组件均使用本插件制作</div>
         </form>
         <div class="example-area">
-            <span class="title">演示区域</span>
+            <span class="example-title">演示区域</span>
             <button class="example-btn" @click="handleClick">演示按钮</button>
-            <e-popup v-model="visible" :options="formValues">
+            <e-popup :visible="visible" :options="formValues">
                 <div class="ease-popup-content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus eum
                     earum laboriosam omnis minima, id sint ipsam eaque odit laudantium dolor est assumenda doloremque
                     dolores tempora commodi fuga, fugit qui?</div>
-            </e-popup>
-        </div> -->
-        <div class="example-area example-tooltip">
-            <button class="example-btn" :class="options.tooltip.target" @click="visibleChange('tooltip')">演示按钮</button>
-            <e-popup v-model="visibles['tooltip']" :options="options['tooltip']">
-                <div class="ease-popup-content">Lorem ipsum </div>
             </e-popup>
         </div>
     </div>
 </template>
 <script>
-import { computed, reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import EPopup from './popup.vue'
 import ESelect from './select.vue'
 export default {
@@ -49,24 +46,81 @@ export default {
         ESelect
     },
     setup() {
-
-        const visibles = reactive({
-            'tooltip': false,
-        })
-        const options = {
-            tooltip: {
-                direction: "left",
-                target: 'example-btn-1',
-                container: 'example-tooltip',
-            },
+        const visible = ref(false)
+        const configs = {
+            "inside": ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end', 'center', 'center-start', 'center-end'],
+            "outside": ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'],
         }
-        const visibleChange = (name) => {
-            visibles[name] = !visibles[name]
+        const formValues = reactive({
+            "target": ".example-btn",
+            "container": ".example-area",
+            "direction": "bottom",
+            "placement": "outside",
+            "width": "auto",
+            "needArrow": true,
+            "modal": false,
+        })
+        const formOptions = reactive([
+            {
+                name: 'target',
+                options: [
+                    { label: '演示按钮', value: '.example-btn', disabled: false },
+                    { label: '演示区域', value: '.example-area' },
+                    { label: 'document.body', value: 'body' },
+                ]
+            },
+            {
+                name: 'container',
+                options: [
+                    { label: '演示区域', value: '.example-area' },
+                    { label: 'document.body', value: 'body' },
+                ]
+            },
+            {
+                name: 'direction',
+                options: configs.outside
+            },
+            {
+                name: 'placement',
+                options: ['outside', 'inside']
+            },
+            {
+                name: 'width',
+                options: ['auto', '200']
+            },
+            {
+                name: 'needArrow',
+                options: [{ label: true, value: true }, { label: false, value: false }]
+            },
+            {
+                name: 'modal',
+                options: [{ label: true, value: true }, { label: false, value: false }]
+            }
+        ])
+        const onChange = (name, value) => {
+            formValues[name] = value
+
+            if (name === 'placement') {
+                formValues.direction = value === 'outside' ? 'bottom' : 'center'
+                formValues.width = value === 'outside' ? 'auto' : '200'
+                formValues.target = value === 'outside' ? '.example-btn' : '.example-area'
+                formValues.needArrow = value === 'outside' ? true : false
+                formOptions[2].options = configs[value]
+                formOptions[0].options[0].disabled = value !== 'outside'
+            }
+            if (name === 'target') {
+                formValues.container = formValues.placement === 'outside' ? '.example-area' : formValues.target
+            }
+        }
+        const handleClick = () => {
+            visible.value = !visible.value
         }
         return {
-            options,
-            visibles,
-            visibleChange
+            visible,
+            formValues,
+            formOptions,
+            onChange,
+            handleClick
         }
     }
 }
@@ -81,14 +135,30 @@ export default {
     margin: 20px 0;
 }
 
-div.example-box {
-    position: relative;
-
+.form-area {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap-reverse;
+    gap:20px;
+}
+.form-area .tip{
+    flex:1;
+    color: #d0d2d8;
+    box-sizing: border-box;
+}
+.form-area .select-item {
+    display: flex;
+    width: 270px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
 }
 
 .example-area {
     width: 100%;
-    height: 200px;
+    height: 400px;
     border: 1px solid #d0d2d8;
     border-radius: 4px;
     display: flex;
@@ -99,10 +169,10 @@ div.example-box {
 }
 
 .example-title {
-    /* position: absolute;
+    position: absolute;
     top: 10px;
     left: 10px;
-    color: #d0d2d8; */
+    color: #d0d2d8;
 }
 
 .example-area .example-btn {

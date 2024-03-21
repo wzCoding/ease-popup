@@ -56,7 +56,7 @@ const popupOption = {
     closeByOutSide: true,
 
     //是否全屏
-    fullScreen: true,
+    fullScreen: false,
 
     //popup与目标元素（触发元素）的间距
     targetGap: 15,

@@ -73,7 +73,7 @@ const instance = new EasePopup(options)
 - `instance.destroy()`  销毁弹窗实例
 
 ### 示例演示
-
+<example></example>
   
 以上介绍是弹窗插件的基本用法，如果想要更加灵活的控制弹窗插件，需要配合 `options` 选项一起使用。
 
@@ -231,7 +231,7 @@ const instance = new EasePopup(options)
 * 说明：弹窗销毁时的回调函数，此回调函数会在弹窗销毁后执行。
 
 
-<example></example>
+
 
 
 [floating-ui]:https://floating-ui.com/
