@@ -83,7 +83,7 @@ const popupOption = {
 const popupName = 'ease-popup'
 const arrowName = 'ease-popup-arrow'
 const modalName = 'ease-popup-modal'
-
+const fullScreenName = 'ease-popup-fullscreen'
 //popup的默认样式
 const popupStyle = {
     popup: [
@@ -145,6 +145,7 @@ export {
     popupName,
     arrowName,
     modalName,
+    fullScreenName,
     popupTheme,
     popupOption,
     arrowOption,

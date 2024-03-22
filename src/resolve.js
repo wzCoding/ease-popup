@@ -1,5 +1,5 @@
 import { computePosition, size, offset, arrow, flip, shift, hide, detectOverflow } from '@floating-ui/dom'
-import { popupOption, popupTheme, arrowOption, popupName, arrowName, modalName, directions } from "./option"
+import { popupOption, popupTheme, arrowOption, popupName, arrowName, modalName, fullScreenName, directions } from "./option"
 
 const preventOverflow = (options) => ({
     name: "preventOverflow",
@@ -30,19 +30,20 @@ function updatePosition() {
 }
 
 function updateStyles(options, data) {
-    const zIndex = getzIndex(options.popup)
     const { popup, theme, needArrow } = options
     const { x, y, placement, middlewareData } = data
-    const arrow = resolveArrow(popup)
+    const arrow = popup.querySelector(`.${arrowName}`)
     const popupStyles = {
         'left': `${x}px`,
         'top': `${y}px`,
-        'z-index': `${zIndex}`,
         'background-color': `${theme.background}`,
         'color': `${theme.color}`,
+        'position': 'absolute',
+        'visibility': middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
     }
+    if (!options.fullScreen) popup.classList.remove(fullScreenName)
     Object.assign(popup.style, popupStyles)
-    if (needArrow) {
+    if (arrow && needArrow) {
         const { x, y } = middlewareData.arrow
         const side = placement.split('-')[0]
         const staticSide = arrowOption.side[side];
@@ -50,15 +51,14 @@ function updateStyles(options, data) {
         const arrowStyles = {
             'left': x != null ? `${x}px` : '',
             'top': y != null ? `${y}px` : '',
-            'z-index': `${zIndex - 1}`,
             'transform': `rotate(${rotate}deg)`,
+            'display': 'block',
             [staticSide]: '-5px'
         }
         Object.assign(arrow.style, arrowStyles)
-    } else {
+    } else if (arrow && !needArrow) {
         Object.assign(arrow.style, { display: 'none' })
     }
-    popup.style.visibility = middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
 }
 
 function getzIndex(popup) {
@@ -68,6 +68,84 @@ function getzIndex(popup) {
     const max = list.length > 0 ? Math.max(...list) : 0
     const self = getComputedStyle(popup).zIndex == 'auto' ? 0 : getComputedStyle(popup).zIndex
     return max > self ? max + 2 : self
+}
+
+function resolveSize(el) {
+    const display = getComputedStyle(el).getPropertyValue("display")
+    if (display === "none") {
+        const styles = [
+            { key: "display", value: "block", origin: getComputedStyle(el).getPropertyValue("display") },
+            { key: "pointer-events", value: "none", origin: getComputedStyle(el).getPropertyValue("pointer-events") },
+            { key: "visibility", value: "hidden", origin: getComputedStyle(el).getPropertyValue("visibility") },
+            { key: "z-index", value: -999, origin: getComputedStyle(el).getPropertyValue("z-index") },
+        ]
+
+        // 利用visibility、z-index、pointer-events属性模拟display：none效果
+        for (const item of styles) {
+            el.style[item.key] = item.value
+        }
+
+        // 获取元素尺寸信息
+        const rect = el.getBoundingClientRect()
+
+        // 将元素样式恢复
+        for (const item of styles) {
+            el.style[item.key] = item.origin
+        }
+
+        return rect
+    } else {
+        return el.getBoundingClientRect()
+    }
+}
+function fullScreenPosition(options) {
+    let rootWidth = window.innerWidth
+    const rootHeight = window.innerHeight
+    const scrollWidth = rootWidth - document.body.clientWidth
+    rootWidth = rootWidth - scrollWidth
+    const { direction, popup, offset, boundryGap } = options
+    let { width, height } = resolveSize(popup)
+    if (rootWidth - boundryGap * 2 < width) width = rootWidth - boundryGap * 2
+    const mainDir = direction.split('-')[0]
+    const crossDir = direction.split('-')[1]
+    let x = 0, y = 0
+    switch (mainDir) {
+        case 'left':
+            x = 0 + boundryGap + offset[0]
+            y = rootHeight / 2 - height / 2 + offset[1]
+            break
+        case 'right':
+            x = rootWidth - width - boundryGap - offset[0]
+            y = rootHeight / 2 - height / 2 - offset[1]
+            break
+        case 'center':
+            x = rootWidth / 2 - width / 2 + offset[0]
+            y = rootHeight / 2 - height / 2 + offset[1]
+            break
+        default:
+    }
+
+    switch (crossDir) {
+        case 'start':
+            y = 0 + boundryGap + offset[1]
+            break
+        case 'end':
+            y = rootHeight - height - boundryGap - offset[1]
+            break
+        default:
+    }
+    popup.querySelector(`.${arrowName}`).style.display = 'none'
+    popup.classList.add(fullScreenName)
+    addStylesheetRules([
+        [
+            `.${fullScreenName}`,
+            ['position', 'fixed', true],
+            ['visibility', 'visible', true],
+            ['left', `${x}px`, true],
+            ['top', `${y}px`, true],
+        ]
+    ])
+
 }
 function insideOffset(options) {
     const { direction, width, offset } = options
@@ -79,7 +157,7 @@ function insideOffset(options) {
             result.crossAxis = rects.reference.height / 2 - rects.floating.height / 2 + y
         }
         if (direction.includes('left') || direction.includes('right')) {
-            result.mainAxis = -(width + x)
+            result.mainAxis = -(width == 'auto' ? rects.floating.width : Number(width)) - x
             result.crossAxis = 0 + y
         }
         return result
@@ -140,29 +218,25 @@ function resolveArrow(popup) {
         arrow.classList.add(arrowName)
         popup.appendChild(arrow)
     }
+    arrow.style.zIndex = getzIndex(popup) - 1
     return arrow
 }
-function resolveModal(options) {
+function resolveModal(options, show, destroy) {
     let modal = resolveEl(`.${modalName}`)
-    const { container, show, fullScreen, destroy } = options
-    if (!modal && container) {
+    if (!modal && options.container && show) {
+        const { container, popup, fullScreen } = options
         modal = document.createElement('div')
         modal.className = modalName
-        modal.style.zIndex = getzIndex(options.popup) - 1
-        modal.style.position = 'fixed'
+        modal.style.zIndex = getzIndex(popup) - 1
         modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
-        document.body.appendChild(modal)
+        modal.style.inset = '0'
         if (!fullScreen) {
-
-            const { left, top } = getComputedStyle(container)
-            const { x, y, width, height } = container.getBoundingClientRect()
-
-            modal.style.left = `${left && left != 'auto' ? left : x + 'px'}`
-            modal.style.top = `${top && top != 'auto' ? top : y + 'px'}`
-            modal.style.width = `${width}px`
-            modal.style.height = `${height}px`
+            modal.style.position = 'absolute'
+            options.container.style.position = 'relative'
+            container.appendChild(modal)
         } else {
-            modal.style.inset = '0'
+            modal.style.position = 'fixed'
+            document.body.appendChild(modal)
         }
     }
     if (modal) {
@@ -176,6 +250,10 @@ function resolvePopup(options) {
     if (!popup) {
         popup = document.createElement('dialog')
     }
+    if (options.needArrow) {
+        resolveArrow(popup)
+    }
+
     if (!popup.showPopup && typeof popup.showPopup !== 'function') {
         const configs = {
             visible: {
@@ -197,26 +275,25 @@ function resolvePopup(options) {
                 configurable: false,
             },
             showPopupModal: {
-                value: function (container, fullScreen) {
+                value: function (fullScreen) {
                     this.visible = true
                     if (this.nodeName === 'DIALOG') {
-                        this.showModal()
-                        options.onShow && options.onShow()
+                        fullScreen ? this.showModal() : this.show()
                     } else {
-                        resolveModal({ container, show: true, fullScreen })
+                        this.style.display = 'block'
                     }
+                    options.onShow && options.onShow()
                 },
                 writable: false,
                 configurable: false,
             },
             hidePopup: {
-                value: function (destroy) {
+                value: function () {
                     this.visible = false
                     if (this.nodeName === 'DIALOG') {
                         this.close()
                     } else {
                         this.style.display = 'none'
-                        resolveModal({ show: false, destroy })
                     }
                     options.onHide && options.onHide()
                 },
@@ -229,24 +306,23 @@ function resolvePopup(options) {
     const className = popup.className.split(' ')
     if (!className.includes(popupName)) className.push(popupName)
     popup.className = className.join(' ').trim()
+    popup.style.zIndex = getzIndex(popup)
+    popup.style.width = options.width == 'auto' ? 'auto' : `${options.width}px`
     if (options.content) popup.innerHTML = `<div class='${popupName}-content'>${options.content}</div>`
-    if (options.width) popup.style.width = `${options.width}px`
     return popup
 }
 function resolveOptions(newOptions, oldOptions) {
+
     if (!oldOptions) oldOptions = popupOption
     const resolved = Object.assign({}, oldOptions, newOptions)
 
     resolved.target = resolveEl(resolved.target)
     resolved.container = resolveEl(resolved.container)
+    resolved.fullScreen = resolved.target === document.body
 
     if (resolved.placement === 'inside') {
         resolved.needArrow = false
         resolved.container = resolved.target
-    }
-
-    if (resolved.target === document.body) {
-        resolved.fullScreen = true
     }
 
     if (resolved.theme) {
@@ -279,7 +355,9 @@ function resolveOptions(newOptions, oldOptions) {
     if (resolved.onDestroy && typeof resolved.onDestroy !== 'function') {
         console.error('the onDestroy option is invalid')
     }
+
     resolved.popup = resolvePopup(resolved)
+
     return resolved
 }
 function resolveEvent(event) {
@@ -320,9 +398,10 @@ function addStylesheetRules(rules, id) {
     for (let index = 0; index < rules.length; index++) {
         let rule = rules[index]
         let selector = rule[0]
-        let existRule = [...sheet.rules].filter(item => item.selectorText === selector)
-        if (existRule.length) {
-            break;
+        let selectors = [...sheet.cssRules].map(item => item.selectorText)
+        let ruleIndex = selectors.indexOf(selector)
+        if (ruleIndex > -1) {
+            sheet.deleteRule(ruleIndex)
         }
 
         let subIndex = 1
@@ -348,8 +427,10 @@ function addStylesheetRules(rules, id) {
 }
 export {
     updatePosition,
+    fullScreenPosition,
     checkPopup,
     resolveOptions,
+    resolveModal,
     resolveEvent,
     addStylesheetRules,
 }

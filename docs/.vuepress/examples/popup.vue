@@ -10,8 +10,8 @@
     </Teleport>
 </template>
 <script>
-import { ref, toRef, watch, onMounted, onUnmounted, reactive } from 'vue'
-import EasePopup from 'ease-popup'
+import { ref, watch, onMounted, onUnmounted, reactive } from 'vue'
+import EasePopup from '../../../src/popup'
 export default {
     name: 'EPopup',
     props: {
@@ -51,6 +51,7 @@ export default {
         })
         const cleanOptions = watch(() => props.options, (val) => {
             instance.update(val)
+            console.log(instance)
         }, { deep: true })
         const cleanModelValue = watch(() => props.visible, () => {
             instance.options.popup.visible ? instance.hide() : instance[props.options.modal ? 'showModal' : 'show']() 

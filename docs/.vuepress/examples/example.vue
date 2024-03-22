@@ -101,16 +101,24 @@ export default {
             formValues[name] = value
 
             if (name === 'placement') {
-                formValues.direction = value === 'outside' ? 'bottom' : 'center'
-                formValues.width = value === 'outside' ? 'auto' : '200'
                 formValues.target = value === 'outside' ? '.example-btn' : '.example-area'
-                formValues.needArrow = value === 'outside' ? true : false
-                formOptions[2].options = configs[value]
-                formOptions[0].options[0].disabled = value !== 'outside'
+                changePlacement(value)
             }
             if (name === 'target') {
-                formValues.container = formValues.placement === 'outside' ? '.example-area' : formValues.target
+                formValues.placement = value === '.example-btn' ? 'outside' : 'inside'
+                changePlacement(formValues.placement)
             }
+        }
+        const changePlacement = (value) => {
+            const isOutside = value === 'outside'
+
+            formValues.direction = isOutside ? 'bottom' : 'center'
+            formValues.width = isOutside ? 'auto' : '200'
+            formValues.container = isOutside ? '.example-area' : formValues.target
+            formValues.needArrow = isOutside ? true : false
+            formOptions[2].options = configs[value]
+            formOptions[0].options[0].disabled = !isOutside
+            formOptions[1].options.forEach(item => item.disabled = !isOutside)
         }
         const handleClick = () => {
             visible.value = !visible.value
@@ -141,13 +149,15 @@ export default {
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap-reverse;
-    gap:20px;
+    gap: 20px;
 }
-.form-area .tip{
-    flex:1;
+
+.form-area .tip {
+    flex: 1;
     color: #d0d2d8;
     box-sizing: border-box;
 }
+
 .form-area .select-item {
     display: flex;
     width: 270px;
@@ -179,4 +189,5 @@ export default {
     padding: 5px 12px;
     cursor: pointer;
 }
+
 </style>

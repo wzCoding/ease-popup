@@ -2,10 +2,12 @@ import { autoUpdate } from '@floating-ui/dom'
 import { popupStyle, popupName } from "./option"
 import {
     resolveOptions,
+    resolveModal,
     resolveEvent,
+    fullScreenPosition,
     updatePosition,
     checkPopup,
-    addStylesheetRules,
+    addStylesheetRules
 } from "./resolve"
 
 class EasePopup {
@@ -19,16 +21,21 @@ class EasePopup {
     }
     update(options) {
         this.options = this.options ? resolveOptions(options, this.options) : resolveOptions(options)
-        const callback = updatePosition.bind(this)
-        if(this.options.popup && this.options.target){
-            this.cleanup = autoUpdate(this.options.target, this.options.popup, callback)
+        if (this.options.popup && this.options.target) {
+            if (this.options.fullScreen) {
+                this.cleanup && this.cleanup()
+                fullScreenPosition(this.options)
+            } else {
+                const callback = updatePosition.bind(this)
+                this.cleanup = autoUpdate(this.options.target, this.options.popup, callback)
+            }
         }
     }
-    show(isDialog = false) {
+    show() {
         checkPopup(this.options)
-        if (!isDialog) {
-            this.options.popup.showPopup()
-        }
+        if (this.options.fullScreen) fullScreenPosition(this.options)
+        this.options.popup.showPopup()
+
         if (this.options.singleOpen) {
             const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.options.popup)
             others.length && others.forEach(item => item.hidePopup && item.hidePopup())
@@ -37,19 +44,33 @@ class EasePopup {
         document.addEventListener('click', this.handleClick, true)
     }
     showModal() {
-        this.show(this.options.popup.nodeName === 'DIALOG')
-        this.options.popup.showPopupModal(this.options.container, this.options.fullScreen)
+        //this.show(this.options.popup.nodeName === 'DIALOG')
+        this.options.popup.showPopupModal(this.options.fullScreen)
+
+        if (!this.options.fullScreen) {
+            resolveModal(this.options, true, false)
+        }
+
+        if (this.options.singleOpen) {
+            const others = [...document.getElementsByClassName(popupName)].filter(item => item !== this.options.popup)
+            others.length && others.forEach(item => item.hidePopup && item.hidePopup())
+        }
+
+        document.addEventListener('click', this.handleClick, true)
     }
-    hide() {
+    hide(destroy = false) {
         checkPopup(this.options)
         this.options.popup.hidePopup()
+        if (!this.options.fullScreen) {
+            resolveModal(this.options, false, destroy)
+        }
         document.removeEventListener('click', this.handleClick, true)
     }
     destroy() {
-        this.cleanup()
-        document.removeEventListener('click', this.handleClick, true)
+        this.hide(true)
         this.options.popup.remove()
         this.options.onDestroy && this.options.onDestroy()
+        this.cleanup && this.cleanup()
         for (let prop in this) {
             this[prop] = null
         }

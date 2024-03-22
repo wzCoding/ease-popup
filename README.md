@@ -15,7 +15,7 @@ npm install ease-popup
 或者也可以使用 `<script>` 标签引入
 
 ```
-<script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.0.1/dist/EasePopup.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/wzCoding/ease-popup@v1.2.0/dist/EasePopup.min.js"></script>
 ```
 
 ## 使用
