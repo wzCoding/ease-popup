@@ -15,7 +15,7 @@ export default defineUserConfig({
         sidebar,
         navbar
     }),
-    base: '/docs/',
+    base: '/ease-popup/',
     lang: 'zh-CN',
     title: 'esae-popup',
     description: 'esae-popup 文档',
