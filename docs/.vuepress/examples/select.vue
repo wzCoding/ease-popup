@@ -4,7 +4,7 @@
             <input type="text" v-model="selectOption.label" readonly>
         </div>
         <div class="select-options" ref="popup">
-            <e-popup :visible="visible" name="select" :options="popupOptions">
+            <e-popup :visible="visible" :name="name" :options="popupOptions">
                 <div class="option-content">
                     <div class="option-item" v-for="option in list" :key="option.value"
                         :class="{ active: option.active, disabled: option.disabled }" @click="handleOptionClick(option)">

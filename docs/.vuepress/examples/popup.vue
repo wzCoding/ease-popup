@@ -42,7 +42,7 @@ export default {
     emits: ['update:modelValue'],
     setup(props, { emit }) {
         const popup = ref(null)
-        const className = props.name ? `${props.name}-popup` : ''
+        const className = props.name ? `popup-${props.name}` : ''
         const popupOptions = reactive(props.options)
         let instance = new EasePopup(popupOptions)
         const show = ref(props.visible)
