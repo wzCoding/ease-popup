@@ -1,5 +1,5 @@
 <template>
-    <Teleport to="body">
+    <Teleport :disabled="disabled" to="body">
         <transition name="fade">
             <dialog v-show="show" class="ease-popup" :class="className" ref="popup">
                 <slot>
@@ -10,7 +10,7 @@
     </Teleport>
 </template>
 <script>
-import { ref, watch, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, watch, onMounted, onUnmounted, reactive, getCurrentInstance } from 'vue'
 import EasePopup from '../../../src/popup'
 export default {
     name: 'EPopup',
@@ -46,19 +46,20 @@ export default {
         const popupOptions = reactive(props.options)
         let instance = new EasePopup(popupOptions)
         const show = ref(props.visible)
-        onMounted(() => {
+        const disabled = ref(true)
+        onMounted(async () => {
             instance.update({ target: popupOptions.target, popup: popup.value, container: popupOptions.container })
+            disabled.value = false
         })
         const cleanOptions = watch(() => props.options, (val) => {
             instance.update(val)
-            console.log(instance)
         }, { deep: true })
         const cleanModelValue = watch(() => props.visible, () => {
-            instance.options.popup.visible ? instance.hide() : instance[props.options.modal ? 'showModal' : 'show']() 
+            instance.options.popup.visible ? instance.hide() : instance[props.options.modal ? 'showModal' : 'show']()
             show.value = instance.options.popup.visible
             emit('update:modelValue', instance.options.popup.visible)
         })
-        
+
         onUnmounted(() => {
             cleanOptions()
             cleanModelValue()
@@ -68,7 +69,8 @@ export default {
         return {
             popup,
             className,
-            show
+            show,
+            disabled
         }
     }
 }
