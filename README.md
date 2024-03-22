@@ -1,6 +1,9 @@
 # ease-popup
 一个简单、方便、有用的 JavaScript 弹窗插件，基于 `floating-ui` 制作
 
+## 文档
+[点击查看文档](https://wzcoding.github.io/ease-popup/)
+
 ## 介绍
 1. 这是一个简单、方便、好用的 js 弹窗插件，可以作为 tooltip 提示框、dialog 对话框等使用，也可以在此基础上自由封装改造。
 2. 本弹窗插件基于 [floating-ui] 制作，弹窗可选位置齐全，功能相对完善，配置简单。
@@ -84,7 +87,6 @@ instance.destroy() // 销毁弹窗
 | onHide          | Function        | null      | 弹窗popup隐藏时的回调函数                                                                                    |
 | onDestroy      | Function        | null      | 弹窗popup销毁时的回调函数                                                                                    |
 
-插件只提供了基础的弹窗展示、隐藏、销毁功能，弹窗的触发方式、弹窗内部结构等可由使用者自行定义，更多的使用方法请参考[docs文档]
+插件只提供了基础的弹窗展示、隐藏、销毁功能，弹窗的触发方式、弹窗内部结构等可由使用者自行定义。
 
 [floating-ui]:https://floating-ui.com/
-[docs文档]:
