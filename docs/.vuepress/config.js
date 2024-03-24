@@ -9,9 +9,7 @@ export default defineUserConfig({
     theme: defaultTheme({
         logo: '/head.png',
         repo: 'https://github.com/wzCoding/ease-popup',
-        docsRepo: 'https://github.com/wzCoding/ease-popup/docs',
-        docsDir:'docs',
-
+        docsRepo: 'https://github.com/wzCoding/ease-popup/',
         sidebar,
         navbar
     }),

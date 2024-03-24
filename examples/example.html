@@ -12,23 +12,12 @@
         padding: 0;
     }
 
-    body {
-        /* width: 100vw;
-        height: 100vh; */
-    }
-
-    .popup-btn,
-    .popup-btn1 {
+    .popup-btn{
         position: absolute;
-        top: 0;
-        left: 600px;
+        top: 300px;
+        left: 100px;
         width: 80px;
         height: 30px;
-    }
-
-    .popup-btn1 {
-        left: 120px;
-        top: 600px;
     }
 
     .container {
@@ -53,11 +42,10 @@
 </style>
 
 <body>
-    <button class="popup-btn">click</button>
-
+    
     <div class="container">
         <div class="box">
-            <button class="popup-btn1">click</button>
+            <button class="popup-btn">click</button>
            
         </div>
     </div>
@@ -71,21 +59,19 @@
         </div>
     </dialog>
 </body>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="../dist/EasePopup.min.js"></script>
 <script>
-    const { toRef } = Vue
+   
 
     const btn = document.querySelector(".popup-btn")
-    const btn1 = document.querySelector(".popup-btn1")
     const dialog = document.querySelector(".ease-popup")
     const instance = new EasePopup({
-        target: '.container',
-        direction: "center",
+        target: btn,
+        direction: "right",
         container: '.container',
         content: "hello world",
-        width: 300,
-        placement: "inside",
+        width: 'auto',
+        placement: "outside",
         selfClick: true,
         fullScreen: false,
         boundryGap: 10,
@@ -117,41 +103,6 @@
             instance.show()
         }
         console.log(instance)
-    })
-
-
-
-    const instance1 = new EasePopup(
-        {
-            target: '.container',
-            direction: "top",
-            container: 'container',
-            width: 200,
-            placement: "outside",
-            selfClick: true,
-            fullScreen: false,
-            boundryGap: 5,
-            targetGap: 15,
-            closeByOutSide: true,
-            needArrow: true,
-            offset: [0, 0],
-            singleOpen: true
-        }
-    )
-    instance1.update({ target: '.container', popup: dialog })
-    const open = toRef(instance1.options.popup, 'visible')
-
-    btn1.addEventListener("click", () => {
-
-        if (open.value) {
-
-            instance1.hide()
-            // instance1.destroy()
-        } else {
-            instance1.show()
-        }
-        console.log(instance1)
-        console.log(open)
     })
 </script>
 

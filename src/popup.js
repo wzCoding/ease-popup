@@ -44,7 +44,6 @@ class EasePopup {
         document.addEventListener('click', this.handleClick, true)
     }
     showModal() {
-        //this.show(this.options.popup.nodeName === 'DIALOG')
         this.options.popup.showPopupModal(this.options.fullScreen)
 
         if (!this.options.fullScreen) {

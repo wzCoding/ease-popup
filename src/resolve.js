@@ -134,7 +134,9 @@ function fullScreenPosition(options) {
             break
         default:
     }
-    popup.querySelector(`.${arrowName}`).style.display = 'none'
+    if (popup.querySelector(`.${arrowName}`)) {
+        popup.querySelector(`.${arrowName}`).style.display = 'none'
+    }
     popup.classList.add(fullScreenName)
     addStylesheetRules([
         [
@@ -307,7 +309,7 @@ function resolvePopup(options) {
     if (!className.includes(popupName)) className.push(popupName)
     popup.className = className.join(' ').trim()
     popup.style.zIndex = getzIndex(popup)
-    popup.style.width = options.width == 'auto' ? 'auto' : `${options.width}px`
+    popup.style.width = options.width == 'auto' ? 'fit-content' : `${options.width}px`
     if (options.content) popup.innerHTML = `<div class='${popupName}-content'>${options.content}</div>`
     return popup
 }
